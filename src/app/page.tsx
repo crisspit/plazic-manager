@@ -116,7 +116,7 @@ interface Shoot {
 }
 
 export default function Dashboard() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true); // Por defecto modo oscuro profesional
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [inputPassword, setInputPassword] = useState('');
   const SECRET_PASSWORD = "4202Plazic*";
@@ -850,20 +850,21 @@ export default function Dashboard() {
 
   const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
-  const bgSidebar = isDarkMode ? 'bg-[#121215] border-zinc-800/40' : 'bg-[#2b2d31] border-zinc-800/40 text-zinc-300';
-  const bgMainContent = isDarkMode ? 'bg-[#09090b] text-zinc-200' : 'bg-[#ffffff] text-slate-800';
-  const bgHeader = isDarkMode ? 'bg-[#09090b] border-zinc-800/40' : 'bg-white border-slate-200/60';
-  const bgKanbanCol = isDarkMode ? 'bg-[#121215] border-zinc-800/40' : 'bg-[#f1f2f4] border-slate-200/50';
-  const bgTaskCard = isDarkMode ? 'bg-zinc-900/80 border-zinc-800' : 'bg-white border-slate-200/60 shadow-sm hover:shadow-md';
-  const textTitle = isDarkMode ? 'text-white' : 'text-slate-900';
-  const gridBorderColor = isDarkMode ? 'border-zinc-800/30' : 'border-slate-200/50';
+  // DISEÑO MODO OSCURO PROFESIONAL (Estilo Linear / Supabase)
+  const bgSidebar = isDarkMode ? 'bg-[#0e0f13] border-zinc-800/60 text-zinc-300' : 'bg-[#2b2d31] border-zinc-800/40 text-zinc-300';
+  const bgMainContent = isDarkMode ? 'bg-[#090a0f] text-zinc-100' : 'bg-[#ffffff] text-slate-800';
+  const bgHeader = isDarkMode ? 'bg-[#0e0f13] border-zinc-800/60 text-zinc-100' : 'bg-white border-slate-200/60';
+  const bgKanbanCol = isDarkMode ? 'bg-[#13151b] border-zinc-800/70' : 'bg-[#f1f2f4] border-slate-200/50';
+  const bgTaskCard = isDarkMode ? 'bg-[#181a20] border-zinc-800/80 hover:border-zinc-700 shadow-lg text-zinc-100' : 'bg-white border-slate-200/60 shadow-sm hover:shadow-md';
+  const textTitle = isDarkMode ? 'text-zinc-100' : 'text-slate-900';
+  const gridBorderColor = isDarkMode ? 'border-zinc-800/60' : 'border-slate-200/50';
 
   const availableNetworks = ['Instagram', 'TikTok', 'YouTube', 'Facebook', 'LinkedIn'];
 
   if (!isAuthenticated) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-[#09090b] text-white p-4">
-        <form onSubmit={handleLogin} className="w-full max-w-sm bg-[#1e1f21] p-8 rounded-2xl border border-zinc-800 shadow-2xl space-y-6 text-center">
+      <div className="flex flex-col items-center justify-center h-screen bg-[#090a0f] text-white p-4">
+        <form onSubmit={handleLogin} className="w-full max-w-sm bg-[#14161c] p-8 rounded-2xl border border-zinc-800 shadow-2xl space-y-6 text-center">
           <div className="w-16 h-16 bg-[#f64e26] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/20">
             <Lock className="text-white" size={30} />
           </div>
@@ -874,7 +875,7 @@ export default function Dashboard() {
             placeholder="Contraseña de acceso" 
             value={inputPassword}
             onChange={(e) => setInputPassword(e.target.value)}
-            className="w-full bg-[#2b2d31] border border-zinc-700 rounded-lg p-3 text-sm focus:outline-none focus:border-[#f64e26] text-white text-center font-bold tracking-widest"
+            className="w-full bg-[#1e2028] border border-zinc-700 rounded-lg p-3 text-sm focus:outline-none focus:border-[#f64e26] text-white text-center font-bold tracking-widest"
             autoFocus
           />
           <button 
@@ -1028,7 +1029,7 @@ export default function Dashboard() {
       </div>
 
       {/* HEADER */}
-      <header className="h-12 bg-[#1e1f21] border-b border-zinc-800/80 px-4 flex items-center justify-between z-30 text-white shrink-0 no-print">
+      <header className={`h-12 border-b px-4 flex items-center justify-between z-30 shrink-0 no-print ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800/80 text-zinc-100' : 'bg-[#1e1f21] border-zinc-800/80 text-white'}`}>
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 rounded-lg bg-[#f64e26] flex items-center justify-center font-black text-white text-xs shadow-md">
             P
@@ -1042,7 +1043,7 @@ export default function Dashboard() {
             <input 
               type="text" 
               placeholder="Buscar proyectos, contenidos, tareas..." 
-              className="w-full bg-[#2b2d31] text-xs text-white pl-9 pr-4 py-1.5 rounded-full border border-zinc-700/50 focus:outline-none focus:border-[#f64e26] placeholder-zinc-400"
+              className={`w-full text-xs pl-9 pr-4 py-1.5 rounded-full border focus:outline-none focus:border-[#f64e26] placeholder-zinc-400 ${isDarkMode ? 'bg-[#16181d] border-zinc-800 text-zinc-100' : 'bg-[#2b2d31] border-zinc-700 text-white'}`}
             />
           </div>
         </div>
@@ -1059,7 +1060,7 @@ export default function Dashboard() {
             </div>
           </button>
 
-          <button onClick={() => window.print()} className="p-1.5 hover:bg-zinc-800 rounded-lg text-zinc-300">
+          <button onClick={() => window.print()} className={`p-1.5 rounded-lg ${isDarkMode ? 'hover:bg-zinc-800 text-zinc-300' : 'hover:bg-zinc-800 text-zinc-300'}`}>
             <FileText size={15} />
           </button>
         </div>
@@ -1075,7 +1076,7 @@ export default function Dashboard() {
             className={`w-full text-left px-3 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2.5 mb-3 border ${
               selectedClientId === 'all'
                 ? 'bg-[#f64e26]/20 text-[#f64e26] border-[#f64e26]/40'
-                : 'text-zinc-300 border-zinc-700/40 hover:bg-zinc-800/50'
+                : isDarkMode ? 'border-zinc-800 text-zinc-300 hover:bg-zinc-800/50' : 'border-zinc-700/40 text-zinc-300 hover:bg-zinc-800/50'
             }`}
           >
             <Building2 size={16} className={selectedClientId === 'all' ? 'text-[#f64e26]' : 'text-zinc-400'} />
@@ -1092,7 +1093,7 @@ export default function Dashboard() {
 
           <div className="flex items-center justify-between mb-2 px-2">
             <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Clientes</span>
-            <button onClick={() => setShowArchived(!showArchived)} className="text-[10px] text-zinc-400 hover:text-white underline">
+            <button onClick={() => setShowArchived(!showArchived)} className="text-[10px] text-zinc-400 hover:text-zinc-300 underline">
               {showArchived ? 'Ocultar' : 'Ver archivados'}
             </button>
           </div>
@@ -1104,8 +1105,8 @@ export default function Dashboard() {
                 onClick={() => setSelectedClientId(client.id)}
                 className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-between group ${
                   selectedClientId === client.id 
-                    ? 'bg-zinc-700/60 text-white font-bold' 
-                    : 'text-zinc-300 hover:bg-zinc-800/50'
+                    ? isDarkMode ? 'bg-zinc-800/80 text-white font-bold' : 'bg-zinc-700/60 text-white font-bold' 
+                    : isDarkMode ? 'text-zinc-400 hover:bg-zinc-900' : 'text-zinc-300 hover:bg-zinc-800/50'
                 }`}
               >
                 <div className="flex items-center gap-2.5 truncate">
@@ -1116,10 +1117,10 @@ export default function Dashboard() {
             ))}
           </div>
 
-          <div className="pt-3 border-t border-zinc-700/40 mt-4 mb-2">
+          <div className={`pt-3 border-t mt-4 mb-2 ${isDarkMode ? 'border-zinc-800' : 'border-zinc-700/40'}`}>
             <button 
               onClick={() => setShowCotizadorModal(true)}
-              className="w-full h-9 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold px-3 rounded-lg flex items-center justify-center gap-2 transition-all text-xs border border-zinc-700/60 shadow-sm"
+              className={`w-full h-9 font-bold px-3 rounded-lg flex items-center justify-center gap-2 transition-all text-xs border shadow-sm ${isDarkMode ? 'bg-[#14161c] border-zinc-800 text-zinc-200 hover:bg-zinc-800' : 'bg-zinc-800 border-zinc-700/60 text-zinc-200 hover:bg-zinc-700'}`}
             >
               <Calculator size={14} className="text-[#f64e26]" />
               <span>Cotizador de Fee</span>
@@ -1144,13 +1145,13 @@ export default function Dashboard() {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="hidden lg:flex items-center gap-3 bg-slate-50 border border-slate-200/60 px-3 py-1.5 rounded-lg">
+              <div className={`hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-lg border ${isDarkMode ? 'bg-[#14161c] border-zinc-800' : 'bg-slate-50 border-slate-200/60'}`}>
                 <BarChart2 size={15} className="text-[#f64e26]" />
                 <div className="text-xs">
-                  <span className="text-slate-500">Pauta: </span>
-                  <span className="font-bold text-slate-900">{publishedCount}/{totalPostsCount} Publicados</span>
+                  <span className={isDarkMode ? 'text-zinc-400' : 'text-slate-500'}>Pauta: </span>
+                  <span className={`font-bold ${isDarkMode ? 'text-zinc-100' : 'text-slate-900'}`}>{publishedCount}/{totalPostsCount} Publicados</span>
                 </div>
-                <div className="w-20 bg-slate-200/80 h-2 rounded-full overflow-hidden">
+                <div className={`w-20 h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-zinc-800' : 'bg-slate-200/80'}`}>
                   <div className="bg-[#f64e26] h-full transition-all" style={{ width: `${pautaProgress}%` }}></div>
                 </div>
               </div>
@@ -1158,7 +1159,7 @@ export default function Dashboard() {
               {selectedClientId !== 'all' && activeClientObj && (
                 <button 
                   onClick={openEditClientModal}
-                  className="h-9 px-3.5 border border-slate-200 text-slate-700 hover:bg-slate-100 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
+                  className={`h-9 px-3.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all border ${isDarkMode ? 'bg-[#14161c] border-zinc-800 text-zinc-200 hover:bg-zinc-800' : 'border-slate-200 text-slate-700 hover:bg-slate-100'}`}
                 >
                   <Settings size={14} className="text-[#f64e26]" />
                   <span>Gestionar Cliente</span>
@@ -1167,12 +1168,12 @@ export default function Dashboard() {
             </div>
           </header>
 
-          <div className="px-8 pt-3 bg-white border-b border-slate-200/60 flex items-center justify-between no-print">
+          <div className={`px-8 pt-3 border-b flex items-center justify-between no-print ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800/80' : 'bg-white border-slate-200/60'}`}>
             <div className="flex items-center gap-6">
               <button
                 onClick={() => setActiveTab('contenido')}
                 className={`pb-2 text-xs font-bold flex items-center gap-1.5 border-b-2 transition-all ${
-                  activeTab === 'contenido' ? 'border-[#f64e26] text-[#f64e26]' : 'border-transparent text-slate-500 hover:text-slate-800'
+                  activeTab === 'contenido' ? 'border-[#f64e26] text-[#f64e26]' : isDarkMode ? 'border-transparent text-zinc-400 hover:text-zinc-200' : 'border-transparent text-slate-500 hover:text-slate-800'
                 }`}
               >
                 <CalendarIcon size={14} />
@@ -1182,7 +1183,7 @@ export default function Dashboard() {
               <button
                 onClick={() => setActiveTab('grabacion')}
                 className={`pb-2 text-xs font-bold flex items-center gap-1.5 border-b-2 transition-all ${
-                  activeTab === 'grabacion' ? 'border-[#f64e26] text-[#f64e26]' : 'border-transparent text-slate-500 hover:text-slate-800'
+                  activeTab === 'grabacion' ? 'border-[#f64e26] text-[#f64e26]' : isDarkMode ? 'border-transparent text-zinc-400 hover:text-zinc-200' : 'border-transparent text-slate-500 hover:text-slate-800'
                 }`}
               >
                 <Video size={14} />
@@ -1192,7 +1193,7 @@ export default function Dashboard() {
               <button
                 onClick={() => setActiveTab('tareas')}
                 className={`pb-2 text-xs font-bold flex items-center gap-1.5 border-b-2 transition-all ${
-                  activeTab === 'tareas' ? 'border-[#f64e26] text-[#f64e26]' : 'border-transparent text-slate-500 hover:text-slate-800'
+                  activeTab === 'tareas' ? 'border-[#f64e26] text-[#f64e26]' : isDarkMode ? 'border-transparent text-zinc-400 hover:text-zinc-200' : 'border-transparent text-slate-500 hover:text-slate-800'
                 }`}
               >
                 <CheckSquare size={14} />
@@ -1203,7 +1204,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => setActiveTab('brand')}
                   className={`pb-2 text-xs font-bold flex items-center gap-1.5 border-b-2 transition-all ${
-                    activeTab === 'brand' ? 'border-[#f64e26] text-[#f64e26]' : 'border-transparent text-slate-500 hover:text-slate-800'
+                    activeTab === 'brand' ? 'border-[#f64e26] text-[#f64e26]' : isDarkMode ? 'border-transparent text-zinc-400 hover:text-zinc-200' : 'border-transparent text-slate-500 hover:text-slate-800'
                   }`}
                 >
                   <Palette size={14} />
@@ -1215,34 +1216,34 @@ export default function Dashboard() {
             {activeTab === 'tareas' && (
               <div className="flex items-center gap-3 mb-2">
                 <div className="relative flex items-center">
-                  <Filter size={13} className="absolute left-2.5 text-slate-400 pointer-events-none" />
+                  <Filter size={13} className="absolute left-2.5 text-zinc-400 pointer-events-none" />
                   <select 
                     value={priorityFilter} 
                     onChange={(e) => setPriorityFilter(e.target.value)} 
-                    className="bg-white border border-slate-200/80 text-slate-700 text-xs font-bold pl-8 pr-7 py-1.5 rounded-lg focus:outline-none focus:border-[#f64e26] shadow-sm appearance-none cursor-pointer"
+                    className={`text-xs font-bold pl-8 pr-7 py-1.5 rounded-lg focus:outline-none focus:border-[#f64e26] shadow-sm appearance-none cursor-pointer border ${isDarkMode ? 'bg-[#14161c] border-zinc-800 text-zinc-200' : 'bg-white border-slate-200/80 text-slate-700'}`}
                   >
                     <option value="all">Todas las prioridades</option>
                     <option value="Alta">Prioridad Alta</option>
                     <option value="Media">Prioridad Media</option>
                     <option value="Baja">Prioridad Baja</option>
                   </select>
-                  <ChevronDown size={13} className="absolute right-2 text-slate-400 pointer-events-none" />
+                  <ChevronDown size={13} className="absolute right-2 text-zinc-400 pointer-events-none" />
                 </div>
 
-                <div className="flex items-center gap-1 bg-slate-100/80 p-1 rounded-lg border border-slate-200/50">
-                  <button onClick={() => setTaskViewMode('kanban')} className={`p-1.5 rounded-md text-xs flex items-center gap-1 ${taskViewMode === 'kanban' ? 'bg-[#f64e26] text-white font-bold' : 'text-slate-600'}`}>
+                <div className={`flex items-center gap-1 p-1 rounded-lg border ${isDarkMode ? 'bg-[#14161c] border-zinc-800' : 'bg-slate-100/80 border-slate-200/50'}`}>
+                  <button onClick={() => setTaskViewMode('kanban')} className={`p-1.5 rounded-md text-xs flex items-center gap-1 ${taskViewMode === 'kanban' ? 'bg-[#f64e26] text-white font-bold' : isDarkMode ? 'text-zinc-400 hover:text-white' : 'text-slate-600'}`}>
                     <KanbanIcon size={13} />
                     <span>Kanban</span>
                   </button>
-                  <button onClick={() => setTaskViewMode('list')} className={`p-1.5 rounded-md text-xs flex items-center gap-1 ${taskViewMode === 'list' ? 'bg-[#f64e26] text-white font-bold' : 'text-slate-600'}`}>
+                  <button onClick={() => setTaskViewMode('list')} className={`p-1.5 rounded-md text-xs flex items-center gap-1 ${taskViewMode === 'list' ? 'bg-[#f64e26] text-white font-bold' : isDarkMode ? 'text-zinc-400 hover:text-white' : 'text-slate-600'}`}>
                     <List size={13} />
                     <span>Lista</span>
                   </button>
-                  <button onClick={() => setTaskViewMode('calendar')} className={`p-1.5 rounded-md text-xs flex items-center gap-1 ${taskViewMode === 'calendar' ? 'bg-[#f64e26] text-white font-bold' : 'text-slate-600'}`}>
+                  <button onClick={() => setTaskViewMode('calendar')} className={`p-1.5 rounded-md text-xs flex items-center gap-1 ${taskViewMode === 'calendar' ? 'bg-[#f64e26] text-white font-bold' : isDarkMode ? 'text-zinc-400 hover:text-white' : 'text-slate-600'}`}>
                     <CalendarIcon size={13} />
                     <span>Calendario</span>
                   </button>
-                  <button onClick={() => setTaskViewMode('gantt')} className={`p-1.5 rounded-md text-xs flex items-center gap-1 ${taskViewMode === 'gantt' ? 'bg-[#f64e26] text-white font-bold' : 'text-slate-600'}`}>
+                  <button onClick={() => setTaskViewMode('gantt')} className={`p-1.5 rounded-md text-xs flex items-center gap-1 ${taskViewMode === 'gantt' ? 'bg-[#f64e26] text-white font-bold' : isDarkMode ? 'text-zinc-400 hover:text-white' : 'text-slate-600'}`}>
                     <BarChart3 size={13} />
                     <span>Gantt</span>
                   </button>
@@ -1252,11 +1253,11 @@ export default function Dashboard() {
 
             {activeTab === 'contenido' && (
               <div className="relative flex items-center mb-2">
-                <Filter size={13} className="absolute left-2.5 text-slate-400 pointer-events-none" />
+                <Filter size={13} className="absolute left-2.5 text-zinc-400 pointer-events-none" />
                 <select 
                   value={networkFilter} 
                   onChange={(e) => setNetworkFilter(e.target.value)} 
-                  className="bg-white border border-slate-200/80 text-slate-700 text-xs font-bold pl-8 pr-7 py-1.5 rounded-lg focus:outline-none focus:border-[#f64e26] shadow-sm appearance-none cursor-pointer"
+                  className={`text-xs font-bold pl-8 pr-7 py-1.5 rounded-lg focus:outline-none focus:border-[#f64e26] shadow-sm appearance-none cursor-pointer border ${isDarkMode ? 'bg-[#14161c] border-zinc-800 text-zinc-200' : 'bg-white border-slate-200/80 text-slate-700'}`}
                 >
                   <option value="all">Todas las redes sociales</option>
                   <option value="Instagram">Instagram</option>
@@ -1265,61 +1266,62 @@ export default function Dashboard() {
                   <option value="Facebook">Facebook</option>
                   <option value="LinkedIn">LinkedIn</option>
                 </select>
-                <ChevronDown size={13} className="absolute right-2 text-slate-400 pointer-events-none" />
+                <ChevronDown size={13} className="absolute right-2 text-zinc-400 pointer-events-none" />
               </div>
             )}
           </div>
 
           {selectedClientId === 'all' && (
-            <div className="px-8 py-4 bg-[#f1f2f4] border-b grid grid-cols-4 gap-4 no-print">
-              <div className="bg-white p-3.5 rounded-xl border border-slate-200/60 shadow-sm flex items-center justify-between">
+            <div className={`px-8 py-4 border-b grid grid-cols-4 gap-4 no-print ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800' : 'bg-[#f1f2f4]'}`}>
+              <div className={`p-3.5 rounded-xl border shadow-sm flex items-center justify-between ${bgTaskCard}`}>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 block uppercase">Facturación Mensual</span>
-                  <span className="text-lg font-black text-slate-900">${globalTotalFee.toLocaleString('es-CL')}</span>
+                  <span className="text-[10px] font-bold text-zinc-400 block uppercase">Facturación Mensual</span>
+                  <span className={`text-lg font-black ${textTitle}`}>${globalTotalFee.toLocaleString('es-CL')}</span>
                 </div>
-                <div className="p-2.5 bg-emerald-100 text-emerald-600 rounded-lg"><DollarSign size={18} /></div>
+                <div className="p-2.5 bg-emerald-500/10 text-emerald-500 rounded-lg"><DollarSign size={18} /></div>
               </div>
 
-              <div className="bg-white p-3.5 rounded-xl border border-slate-200/60 shadow-sm flex items-center justify-between">
+              <div className={`p-3.5 rounded-xl border shadow-sm flex items-center justify-between ${bgTaskCard}`}>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 block uppercase">Recaudación Real</span>
-                  <span className="text-lg font-black text-emerald-600">${globalTotalAbonado.toLocaleString('es-CL')}</span>
+                  <span className="text-[10px] font-bold text-zinc-400 block uppercase">Recaudación Real</span>
+                  <span className="text-lg font-black text-emerald-500">${globalTotalAbonado.toLocaleString('es-CL')}</span>
                 </div>
-                <div className="p-2.5 bg-emerald-100 text-emerald-600 rounded-lg"><TrendingUp size={18} /></div>
+                <div className="p-2.5 bg-emerald-500/10 text-emerald-500 rounded-lg"><TrendingUp size={18} /></div>
               </div>
 
-              <div className="bg-white p-3.5 rounded-xl border border-slate-200/60 shadow-sm flex items-center justify-between">
+              <div className={`p-3.5 rounded-xl border shadow-sm flex items-center justify-between ${bgTaskCard}`}>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 block uppercase">Entregables Publicados</span>
-                  <span className="text-lg font-black text-slate-900">{publishedCount}/{totalPostsCount}</span>
+                  <span className="text-[10px] font-bold text-zinc-400 block uppercase">Entregables Publicados</span>
+                  <span className={`text-lg font-black ${textTitle}`}>{publishedCount}/{totalPostsCount}</span>
                 </div>
-                <div className="p-2.5 bg-orange-100 text-[#f64e26] rounded-lg"><BarChart2 size={18} /></div>
+                <div className="p-2.5 bg-orange-500/10 text-[#f64e26] rounded-lg"><BarChart2 size={18} /></div>
               </div>
 
-              <div className="bg-white p-3.5 rounded-xl border border-slate-200/60 shadow-sm flex items-center justify-between">
+              <div className={`p-3.5 rounded-xl border shadow-sm flex items-center justify-between ${bgTaskCard}`}>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 block uppercase">Tareas Pendientes</span>
-                  <span className="text-lg font-black text-amber-600">{globalPendingTasks}</span>
+                  <span className="text-[10px] font-bold text-zinc-400 block uppercase">Tareas Pendientes</span>
+                  <span className="text-lg font-black text-amber-500">{globalPendingTasks}</span>
                 </div>
-                <div className="p-2.5 bg-amber-100 text-amber-600 rounded-lg"><Clock size={18} /></div>
+                <div className="p-2.5 bg-amber-500/10 text-amber-500 rounded-lg"><Clock size={18} /></div>
               </div>
             </div>
           )}
 
-          <div className="flex-1 flex overflow-hidden p-6 gap-6 bg-[#f9f9fb]">
+          <div className={`flex-1 flex overflow-hidden p-6 gap-6 ${isDarkMode ? 'bg-[#090a0f]' : 'bg-[#f9f9fb]'}`}>
             
             <div className="flex-1 flex flex-col min-w-0">
 
-              {(activeTab === 'contenido' || activeTab === 'grabacion' || activeTab === 'tareas') && (
+              {/* MÓDULO 1: CALENDARIO DE CONTENIDO */}
+              {activeTab === 'contenido' && (
                 <div className="flex-1 flex flex-col min-h-0">
-                  <div className={`flex items-center justify-between mb-3 p-3 rounded-xl border border-slate-200/60 no-print ${bgTaskCard}`}>
+                  <div className={`flex items-center justify-between mb-3 p-3 rounded-xl border no-print ${bgTaskCard}`}>
                     <div className="flex items-center gap-3">
                       <h2 className={`text-sm font-bold ${textTitle}`}>
                         {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
                       </h2>
-                      <div className="flex items-center gap-1 bg-slate-100/80 border border-slate-200/60 p-0.5 rounded-lg">
-                        <button onClick={() => setCalendarGridMode('month')} className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all ${calendarGridMode === 'month' ? 'bg-[#f64e26] text-white shadow-sm' : 'text-slate-600'}`}>Mes</button>
-                        <button onClick={() => setCalendarGridMode('week')} className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all ${calendarGridMode === 'week' ? 'bg-[#f64e26] text-white shadow-sm' : 'text-slate-600'}`}>Semana</button>
+                      <div className={`flex items-center gap-1 p-0.5 rounded-lg border ${isDarkMode ? 'bg-[#14161c] border-zinc-800' : 'bg-slate-100/80 border-slate-200/60'}`}>
+                        <button onClick={() => setCalendarGridMode('month')} className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all ${calendarGridMode === 'month' ? 'bg-[#f64e26] text-white shadow-sm' : 'text-zinc-400'}`}>Mes</button>
+                        <button onClick={() => setCalendarGridMode('week')} className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all ${calendarGridMode === 'week' ? 'bg-[#f64e26] text-white shadow-sm' : 'text-zinc-400'}`}>Semana</button>
                       </div>
                     </div>
 
@@ -1328,109 +1330,55 @@ export default function Dashboard() {
                       className="h-9 px-3.5 bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold rounded-lg text-xs flex items-center gap-1.5 transition-all shadow-sm"
                     >
                       <Plus size={15} />
-                      <span>{activeTab === 'contenido' ? 'Nuevo Contenido' : activeTab === 'grabacion' ? 'Nuevo Rodaje' : 'Nueva Tarea'}</span>
+                      <span>Nuevo Contenido</span>
                     </button>
                   </div>
 
-                  <div className={`flex-1 rounded-2xl border border-slate-200/60 flex flex-col min-h-0 overflow-hidden ${bgTaskCard}`}>
-                    <div className={`grid grid-cols-7 border-b ${gridBorderColor} text-center text-[11px] font-bold text-slate-500 py-2`}>
+                  <div className={`flex-1 rounded-2xl border flex flex-col min-h-0 overflow-hidden ${bgTaskCard}`}>
+                    <div className={`grid grid-cols-7 border-b ${gridBorderColor} text-center text-[11px] font-bold text-zinc-400 py-2`}>
                       <div>DOM</div><div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div>
                     </div>
 
                     <div className="grid grid-cols-7 flex-1 overflow-y-auto">
                       {calendarDays.map((d, index) => {
                         if (!d.isCurrentMonth && calendarGridMode === 'month') return <div key={index} className={`border-r border-b ${gridBorderColor} opacity-20 p-2 min-h-[90px]`}></div>;
-
                         const dayPosts = filteredPosts.filter(p => p.date === d.fullDate);
-                        const dayShoots = filteredShoots.filter(s => s.date === d.fullDate);
-                        const dayTasks = filteredTasks.filter(t => t.deadline === d.fullDate || t.startDate === d.fullDate);
 
                         return (
-                          <div key={index} onClick={() => openAddModalForDate(d.fullDate)} className={`border-r border-b ${gridBorderColor} p-2 min-h-[100px] hover:bg-[#f64e26]/5 transition-all cursor-pointer flex flex-col group relative`}>
+                          <div key={index} onClick={() => openAddModalForDate(d.fullDate)} className={`border-r border-b ${gridBorderColor} p-2 min-h-[100px] hover:bg-[#f64e26]/10 transition-all cursor-pointer flex flex-col group relative`}>
                             <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-xs font-bold text-slate-500 group-hover:text-[#f64e26]">{d.day}</span>
-                              <Plus size={13} className="text-slate-400 opacity-40 group-hover:opacity-100" />
+                              <span className="text-xs font-bold text-zinc-400 group-hover:text-[#f64e26]">{d.day}</span>
+                              <Plus size={13} className="text-zinc-500 opacity-40 group-hover:opacity-100" />
                             </div>
 
                             <div className="space-y-1.5 overflow-y-auto max-h-[75px] pr-0.5">
-                              {activeTab === 'contenido' && dayPosts.map(p => {
+                              {dayPosts.map(p => {
                                 const isPublished = p.status === 'Publicado';
                                 return (
                                   <div 
                                     key={p.id} 
                                     className={`text-[10px] p-1.5 rounded-lg border-l-2 font-semibold flex items-center justify-between gap-1 group/card transition-all ${
                                       isPublished 
-                                        ? 'bg-emerald-50 border-emerald-500 text-emerald-900' 
-                                        : 'bg-slate-100 border-[#f64e26] text-slate-800'
+                                        ? isDarkMode ? 'bg-emerald-950/40 border-emerald-500 text-emerald-300' : 'bg-emerald-50 border-emerald-500 text-emerald-900' 
+                                        : isDarkMode ? 'bg-[#1f222b] border-[#f64e26] text-zinc-200' : 'bg-slate-100 border-[#f64e26] text-slate-800'
                                     }`}
                                   >
                                     <div className="flex items-center gap-1.5 min-w-0 truncate">
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          togglePostPublished(p.id);
-                                        }}
-                                        className="hover:scale-110 transition-transform shrink-0"
-                                      >
-                                        {isPublished ? (
-                                          <CheckCircle size={13} className="text-emerald-600 fill-emerald-100" />
-                                        ) : (
-                                          <Circle size={13} className="text-slate-400 hover:text-[#f64e26]" />
-                                        )}
+                                      <button onClick={(e) => { e.stopPropagation(); togglePostPublished(p.id); }} className="hover:scale-110 transition-transform shrink-0">
+                                        {isPublished ? <CheckCircle size={13} className="text-emerald-500 fill-emerald-950" /> : <Circle size={13} className="text-zinc-400 hover:text-[#f64e26]" />}
                                       </button>
-                                      <span className={`truncate ${isPublished ? 'line-through text-emerald-700/80' : ''}`}>
+                                      <span className={`truncate ${isPublished ? 'line-through text-emerald-400/80' : ''}`}>
                                         {p.networks?.join(', ')}: {p.topic || p.format}
                                       </span>
                                     </div>
 
                                     <div className="flex items-center gap-1">
                                       <button onClick={(e) => { e.stopPropagation(); handleDuplicatePost(p); }} title="Duplicar" className="p-0.5 hover:text-[#f64e26] opacity-0 group-hover/card:opacity-100"><Copy size={11} /></button>
-                                      <button onClick={(e) => { e.stopPropagation(); handleDeletePost(p.id); }} title="Eliminar" className="p-0.5 hover:text-red-500 opacity-0 group-hover/card:opacity-100"><Trash2 size={11} /></button>
+                                      <button onClick={(e) => { e.stopPropagation(); handleDeletePost(p.id); }} title="Eliminar" className="p-0.5 hover:text-red-400 opacity-0 group-hover/card:opacity-100"><Trash2 size={11} /></button>
                                     </div>
                                   </div>
                                 );
                               })}
-
-                              {activeTab === 'grabacion' && dayShoots.map(s => {
-                                const isDone = s.status === 'Realizado';
-                                return (
-                                  <div 
-                                    key={s.id} 
-                                    className={`text-[10px] p-1.5 rounded-lg border-l-2 font-semibold flex items-center justify-between gap-1 group/card transition-all ${
-                                      isDone 
-                                        ? 'bg-emerald-50 border-emerald-500 text-emerald-900' 
-                                        : 'bg-amber-50 border-amber-500 text-amber-900'
-                                    }`}
-                                  >
-                                    <div className="flex items-center gap-1.5 min-w-0 truncate">
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          toggleShootDone(s.id);
-                                        }}
-                                        className="hover:scale-110 transition-transform shrink-0"
-                                      >
-                                        {isDone ? (
-                                          <CheckCircle size={13} className="text-emerald-600 fill-emerald-100" />
-                                        ) : (
-                                          <Circle size={13} className="text-amber-500/60 hover:text-amber-600" />
-                                        )}
-                                      </button>
-                                      <span className={`truncate ${isDone ? 'line-through text-emerald-700/80' : ''}`}>
-                                        📹 {s.time} - {s.location}
-                                      </span>
-                                    </div>
-                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteShoot(s.id); }} title="Eliminar" className="p-0.5 hover:text-red-500 opacity-0 group-hover/card:opacity-100"><Trash2 size={11} /></button>
-                                  </div>
-                                );
-                              })}
-
-                              {activeTab === 'tareas' && dayTasks.map(t => (
-                                <div key={t.id} onClick={(e) => { e.stopPropagation(); openTaskModal(t); }} className="text-[10px] p-1.5 rounded-lg border-l-2 font-semibold bg-blue-50 border-blue-500 text-blue-900 truncate flex items-center justify-between group/card">
-                                  <span className="truncate">📌 {t.title}</span>
-                                  <button onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }} title="Eliminar" className="hover:text-red-500 opacity-0 group-hover/card:opacity-100"><Trash2 size={11} /></button>
-                                </div>
-                              ))}
                             </div>
                           </div>
                         );
@@ -1440,200 +1388,325 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {/* KANBAN */}
-              {activeTab === 'tareas' && taskViewMode === 'kanban' && (
-                <div className="grid grid-cols-3 gap-6 flex-1 overflow-x-auto overflow-y-hidden">
-                  {(['Por Hacer', 'En Proceso', 'Completado'] as const).map(columnStatus => {
-                    const colTasks = filteredTasks.filter(t => t.status === columnStatus);
-                    return (
-                      <div key={columnStatus} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, columnStatus)} className={`rounded-2xl p-4 flex flex-col ${bgKanbanCol}`}>
-                        <div className="flex items-center justify-between mb-4 px-1">
-                          <div className="flex items-center gap-2">
-                            <h3 className={`text-sm font-extrabold ${textTitle}`}>{columnStatus === 'Por Hacer' ? 'Tareas pendientes' : columnStatus === 'Completado' ? 'Finalizado' : columnStatus}</h3>
-                            <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-bold">{colTasks.length}</span>
-                          </div>
-                          <button onClick={() => openTaskModal(undefined, columnStatus)} className="p-1 hover:bg-slate-200 text-slate-500 rounded-lg">
-                            <Plus size={15} />
-                          </button>
-                        </div>
-
-                        <div className="space-y-3 overflow-y-auto flex-1 pr-1">
-                          {colTasks.map(task => {
-                            const c = clients.find(cl => cl.id === task.clientId);
-                            return (
-                              <div key={task.id} draggable onDragStart={(e) => handleDragStart(e, task.id)} onClick={() => openTaskModal(task)} className={`p-4 rounded-xl border border-slate-200/60 cursor-pointer transition-all ${bgTaskCard} group/tcard`}>
-                                <div className="flex items-start gap-3 mb-3 justify-between">
-                                  <div className="flex items-start gap-2.5 flex-1">
-                                    <button onClick={(e) => { e.stopPropagation(); updateTaskStatus(task.id, task.status === 'Completado' ? 'Por Hacer' : 'Completado'); }} className="mt-0.5 shrink-0">
-                                      {task.status === 'Completado' ? <CheckCircle size={18} className="text-emerald-500 fill-emerald-100" /> : <Circle size={18} className="text-slate-400 hover:text-emerald-500" />}
-                                    </button>
-                                    <span className={`text-xs font-extrabold leading-relaxed flex-1 ${task.status === 'Completado' ? 'line-through text-slate-400' : textTitle}`}>{task.title}</span>
-                                  </div>
-                                  <button onClick={(e) => { e.stopPropagation(); handleDuplicateTask(task); }} title="Clonar Tarea" className="text-slate-400 hover:text-[#f64e26] opacity-0 group-hover/tcard:opacity-100 transition-opacity p-1">
-                                    <Copy size={13} />
-                                  </button>
-                                </div>
-
-                                <div className="flex items-center justify-between text-[11px] pt-2 border-t border-slate-100 pl-7">
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-6 h-6 rounded-full bg-amber-500 text-white font-black text-[10px] flex items-center justify-center border border-white shadow-sm shrink-0">
-                                      {task.assignee?.substring(0, 1) || 'C'}
-                                    </div>
-                                    <span className="text-emerald-600 font-extrabold">{task.deadline}</span>
-                                  </div>
-
-                                  {selectedClientId === 'all' && c && (
-                                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded text-black" style={{ backgroundColor: c.color }}>{c.name}</span>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })}
-
-                          <button onClick={() => openTaskModal(undefined, columnStatus)} className="w-full py-2.5 text-xs text-slate-500 hover:bg-slate-200/50 rounded-xl flex items-center justify-center gap-1.5 font-semibold">
-                            <Plus size={14} /> <span>Agregar tarea</span>
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* LISTA */}
-              {activeTab === 'tareas' && taskViewMode === 'list' && (
-                <div className={`flex-1 flex flex-col min-h-0 rounded-2xl border border-slate-200/60 p-6 space-y-6 overflow-y-auto ${bgTaskCard}`}>
-                  {(['Por Hacer', 'En Proceso', 'Completado'] as const).map(groupStatus => {
-                    const groupTasks = filteredTasks.filter(t => t.status === groupStatus);
-                    return (
-                      <div key={groupStatus} className="space-y-3">
-                        <div className="flex items-center justify-between border-b pb-2">
-                          <div className="flex items-center gap-2">
-                            <h3 className={`text-xs font-extrabold uppercase tracking-wider ${textTitle}`}>{groupStatus}</h3>
-                            <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">{groupTasks.length}</span>
-                          </div>
-                          <button onClick={() => openTaskModal(undefined, groupStatus)} className="text-xs text-[#f64e26] hover:underline flex items-center gap-1 font-semibold">
-                            <Plus size={13} />
-                            <span>Agregar a {groupStatus}</span>
-                          </button>
-                        </div>
-
-                        <div className="space-y-2">
-                          {groupTasks.length === 0 ? (
-                            <div className="text-xs text-slate-400 italic py-2 px-2 bg-slate-50 rounded-lg border">
-                              Sin tareas en esta etapa. <button onClick={() => openTaskModal(undefined, groupStatus)} className="text-[#f64e26] font-bold hover:underline">Clic aquí para agregar una.</button>
-                            </div>
-                          ) : (
-                            groupTasks.map(task => {
-                              const c = clients.find(cl => cl.id === task.clientId);
-                              return (
-                                <div key={task.id} onClick={() => openTaskModal(task)} className="border border-slate-200/60 p-3.5 rounded-xl flex items-center justify-between hover:border-[#f64e26]/60 cursor-pointer transition-all bg-white shadow-sm">
-                                  <div className="flex items-center gap-3">
-                                    <button onClick={(e) => { e.stopPropagation(); updateTaskStatus(task.id, task.status === 'Completado' ? 'Por Hacer' : 'Completado'); }}>
-                                      {task.status === 'Completado' ? <CheckCircle size={18} className="text-emerald-500 fill-emerald-100" /> : <Circle size={18} className="text-slate-400" />}
-                                    </button>
-                                    <div>
-                                      <span className={`text-xs font-bold block ${task.status === 'Completado' ? 'line-through text-slate-400' : textTitle}`}>{task.title}</span>
-                                      <span className="text-[10px] text-slate-500">Deadline: {task.deadline} • Responsable: {task.assignee}</span>
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <button onClick={(e) => { e.stopPropagation(); handleDuplicateTask(task); }} title="Clonar Tarea" className="p-1 hover:text-[#f64e26] text-slate-400"><Copy size={13} /></button>
-                                    {selectedClientId === 'all' && c && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded text-black" style={{ backgroundColor: c.color }}>{c.name}</span>}
-                                  </div>
-                                </div>
-                              );
-                            })
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* GANTT */}
-              {activeTab === 'tareas' && taskViewMode === 'gantt' && (
-                <div className={`flex-1 flex flex-col min-h-0 rounded-2xl border border-slate-200/60 p-5 overflow-hidden ${bgTaskCard}`}>
-                  <div className="flex items-center justify-between mb-4 border-b pb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-slate-500">Escala:</span>
-                      <button onClick={() => setGanttScale('days')} className={`px-3 py-1 rounded-lg text-xs font-bold ${ganttScale === 'days' ? 'bg-[#f64e26] text-white' : 'bg-slate-100 text-slate-600'}`}>Días (1-31)</button>
-                      <button onClick={() => setGanttScale('weeks')} className={`px-3 py-1 rounded-lg text-xs font-bold ${ganttScale === 'weeks' ? 'bg-[#f64e26] text-white' : 'bg-slate-100 text-slate-600'}`}>Semanas (S1-S4)</button>
+              {/* MÓDULO 2: CALENDARIO DE RODAJES */}
+              {activeTab === 'grabacion' && (
+                <div className="flex-1 flex flex-col min-h-0">
+                  <div className={`flex items-center justify-between mb-3 p-3 rounded-xl border no-print ${bgTaskCard}`}>
+                    <div className="flex items-center gap-3">
+                      <h2 className={`text-sm font-bold ${textTitle}`}>
+                        {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+                      </h2>
                     </div>
+
+                    <button
+                      onClick={() => openAddModalForDate('2026-08-10')}
+                      className="h-9 px-3.5 bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold rounded-lg text-xs flex items-center gap-1.5 transition-all shadow-sm"
+                    >
+                      <Plus size={15} />
+                      <span>Nuevo Rodaje</span>
+                    </button>
                   </div>
 
-                  <div className="flex-1 overflow-x-auto overflow-y-auto">
-                    <div className="min-w-[950px] flex flex-col">
-                      <div className="flex border-b border-slate-200/60 text-[10px] font-bold text-slate-500 pb-2 mb-3 py-2 bg-slate-50/50 rounded-lg">
-                        <div className="w-64 shrink-0 px-3 flex items-center gap-2"><Layers size={13} /> TAREA / ETAPA</div>
-                        <div className="flex-1 grid grid-cols-31 text-center border-l border-slate-200/60">
-                          {Array.from({ length: 31 }, (_, i) => {
-                            const dayNum = i + 1;
-                            const dayInitial = getDayInitial(currentDate.getFullYear(), currentDate.getMonth(), dayNum);
-                            return (
-                              <div key={i} className={`flex flex-col items-center justify-center ${dayNum === 10 ? 'text-[#f64e26] font-black bg-orange-100 rounded-md' : ''}`}>
-                                <span className="text-[9px] opacity-60">{dayInitial}</span>
-                                <span>{dayNum}</span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
+                  <div className={`flex-1 rounded-2xl border flex flex-col min-h-0 overflow-hidden ${bgTaskCard}`}>
+                    <div className={`grid grid-cols-7 border-b ${gridBorderColor} text-center text-[11px] font-bold text-zinc-400 py-2`}>
+                      <div>DOM</div><div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div>
+                    </div>
 
-                      <div className="space-y-4">
-                        {(['Por Hacer', 'En Proceso', 'Completado'] as const).map(stage => {
-                          const stageTasks = filteredTasks.filter(t => t.status === stage);
-                          if (stageTasks.length === 0) return null;
+                    <div className="grid grid-cols-7 flex-1 overflow-y-auto">
+                      {calendarDays.map((d, index) => {
+                        if (!d.isCurrentMonth && calendarGridMode === 'month') return <div key={index} className={`border-r border-b ${gridBorderColor} opacity-20 p-2 min-h-[90px]`}></div>;
+                        const dayShoots = filteredShoots.filter(s => s.date === d.fullDate);
 
-                          return (
-                            <div key={stage} className="space-y-2">
-                              <div className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider px-2 border-b border-slate-200/60 pb-1 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-[#f64e26]"></span>
-                                <span>{stage === 'Por Hacer' ? 'Tareas pendientes' : stage === 'Completado' ? 'Finalizado' : stage}</span>
-                              </div>
+                        return (
+                          <div key={index} onClick={() => openAddModalForDate(d.fullDate)} className={`border-r border-b ${gridBorderColor} p-2 min-h-[100px] hover:bg-[#f64e26]/10 transition-all cursor-pointer flex flex-col group relative`}>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="text-xs font-bold text-zinc-400 group-hover:text-[#f64e26]">{d.day}</span>
+                              <Plus size={13} className="text-zinc-500 opacity-40 group-hover:opacity-100" />
+                            </div>
 
-                              {stageTasks.map(task => {
-                                const startDay = parseInt(task.startDate?.split('-')[2] || '1', 10);
-                                const endDay = parseInt(task.deadline?.split('-')[2] || '15', 10);
-
+                            <div className="space-y-1.5 overflow-y-auto max-h-[75px] pr-0.5">
+                              {dayShoots.map(s => {
+                                const isDone = s.status === 'Realizado';
                                 return (
-                                  <div key={task.id} onClick={() => openTaskModal(task)} className="flex items-center text-xs hover:bg-slate-50 py-1.5 px-2 rounded-xl cursor-pointer">
-                                    <div className="w-64 shrink-0 pr-3 truncate">
-                                      <span className="font-bold block text-slate-800 truncate">{task.title}</span>
+                                  <div 
+                                    key={s.id} 
+                                    className={`text-[10px] p-1.5 rounded-lg border-l-2 font-semibold flex items-center justify-between gap-1 group/card transition-all ${
+                                      isDone 
+                                        ? isDarkMode ? 'bg-emerald-950/40 border-emerald-500 text-emerald-300' : 'bg-emerald-50 border-emerald-500 text-emerald-900' 
+                                        : isDarkMode ? 'bg-amber-950/40 border-amber-500 text-amber-300' : 'bg-amber-50 border-amber-500 text-amber-900'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-1.5 min-w-0 truncate">
+                                      <button onClick={(e) => { e.stopPropagation(); toggleShootDone(s.id); }} className="hover:scale-110 transition-transform shrink-0">
+                                        {isDone ? <CheckCircle size={13} className="text-emerald-500 fill-emerald-950" /> : <Circle size={13} className="text-amber-500/80 hover:text-amber-400" />}
+                                      </button>
+                                      <span className={`truncate ${isDone ? 'line-through text-emerald-400/80' : ''}`}>
+                                        📹 {s.time} - {s.location}
+                                      </span>
                                     </div>
-                                    <div className="flex-1 relative h-9 bg-slate-50 rounded-xl overflow-hidden flex items-center border border-slate-100">
-                                      <div className="absolute top-0 bottom-0 w-0.5 bg-blue-500 z-10" style={{ left: `${(9 / 31) * 100}%` }}></div>
-                                      
-                                      <div 
-                                        className="absolute h-7 rounded-xl text-[10px] font-bold text-slate-800 bg-white border border-slate-200/80 shadow-sm px-2 flex items-center gap-2 transition-all truncate" 
-                                        style={{ left: `${((startDay - 1) / 31) * 100}%`, width: `${Math.max(12, ((endDay - startDay + 1) / 31) * 100)}%` }}
-                                      >
-                                        <div className="w-5 h-5 rounded-full bg-slate-300 font-black text-[9px] text-slate-800 flex items-center justify-center shrink-0">
-                                          {task.assignee?.substring(0, 1) || 'C'}
-                                        </div>
-                                        <span className="truncate font-bold">{task.title}</span>
-                                      </div>
-                                    </div>
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteShoot(s.id); }} title="Eliminar" className="p-0.5 hover:text-red-400 opacity-0 group-hover/card:opacity-100"><Trash2 size={11} /></button>
                                   </div>
                                 );
                               })}
                             </div>
-                          );
-                        })}
-                      </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* KIT DE MARCA */}
+              {/* MÓDULO 3: GESTOR DE TAREAS (SINCRONIZADO EN KANBAN, LISTA, CALENDARIO Y GANTT) */}
+              {activeTab === 'tareas' && (
+                <>
+                  {/* VISTA KANBAN */}
+                  {taskViewMode === 'kanban' && (
+                    <div className="grid grid-cols-3 gap-6 flex-1 overflow-x-auto overflow-y-hidden">
+                      {(['Por Hacer', 'En Proceso', 'Completado'] as const).map(columnStatus => {
+                        const colTasks = filteredTasks.filter(t => t.status === columnStatus);
+                        return (
+                          <div key={columnStatus} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, columnStatus)} className={`rounded-2xl p-4 flex flex-col border ${bgKanbanCol}`}>
+                            <div className="flex items-center justify-between mb-4 px-1">
+                              <div className="flex items-center gap-2">
+                                <h3 className={`text-sm font-extrabold ${textTitle}`}>{columnStatus === 'Por Hacer' ? 'Tareas pendientes' : columnStatus === 'Completado' ? 'Finalizado' : columnStatus}</h3>
+                                <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${isDarkMode ? 'bg-zinc-800 text-zinc-300' : 'bg-slate-200 text-slate-600'}`}>{colTasks.length}</span>
+                              </div>
+                              <button onClick={() => openTaskModal(undefined, columnStatus)} className={`p-1 rounded-lg ${isDarkMode ? 'hover:bg-zinc-800 text-zinc-400' : 'hover:bg-slate-200 text-slate-500'}`}>
+                                <Plus size={15} />
+                              </button>
+                            </div>
+
+                            <div className="space-y-3 overflow-y-auto flex-1 pr-1">
+                              {colTasks.map(task => {
+                                const c = clients.find(cl => cl.id === task.clientId);
+                                return (
+                                  <div key={task.id} draggable onDragStart={(e) => handleDragStart(e, task.id)} onClick={() => openTaskModal(task)} className={`p-4 rounded-xl border cursor-pointer transition-all ${bgTaskCard} group/tcard`}>
+                                    <div className="flex items-start gap-3 mb-3 justify-between">
+                                      <div className="flex items-start gap-2.5 flex-1">
+                                        <button onClick={(e) => { e.stopPropagation(); updateTaskStatus(task.id, task.status === 'Completado' ? 'Por Hacer' : 'Completado'); }} className="mt-0.5 shrink-0">
+                                          {task.status === 'Completado' ? <CheckCircle size={18} className="text-emerald-500 fill-emerald-950" /> : <Circle size={18} className="text-zinc-500 hover:text-emerald-500" />}
+                                        </button>
+                                        <span className={`text-xs font-extrabold leading-relaxed flex-1 ${task.status === 'Completado' ? 'line-through text-zinc-500' : textTitle}`}>{task.title}</span>
+                                      </div>
+                                      <button onClick={(e) => { e.stopPropagation(); handleDuplicateTask(task); }} title="Clonar Tarea" className="text-zinc-500 hover:text-[#f64e26] opacity-0 group-hover/tcard:opacity-100 transition-opacity p-1">
+                                        <Copy size={13} />
+                                      </button>
+                                    </div>
+
+                                    <div className={`flex items-center justify-between text-[11px] pt-2 border-t pl-7 ${isDarkMode ? 'border-zinc-800/80' : 'border-slate-100'}`}>
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-6 h-6 rounded-full bg-amber-500 text-white font-black text-[10px] flex items-center justify-center border border-white/10 shadow-sm shrink-0">
+                                          {task.assignee?.substring(0, 1) || 'C'}
+                                        </div>
+                                        <span className="text-emerald-500 font-extrabold">{task.deadline}</span>
+                                      </div>
+
+                                      {selectedClientId === 'all' && c && (
+                                        <span className="text-[9px] font-black px-1.5 py-0.5 rounded text-black" style={{ backgroundColor: c.color }}>{c.name}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+
+                              <button onClick={() => openTaskModal(undefined, columnStatus)} className={`w-full py-2.5 text-xs rounded-xl flex items-center justify-center gap-1.5 font-semibold ${isDarkMode ? 'text-zinc-400 hover:bg-zinc-800/40' : 'text-slate-500 hover:bg-slate-200/50'}`}>
+                                <Plus size={14} /> <span>Agregar tarea</span>
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* VISTA LISTA */}
+                  {taskViewMode === 'list' && (
+                    <div className={`flex-1 flex flex-col min-h-0 rounded-2xl border p-6 space-y-6 overflow-y-auto ${bgTaskCard}`}>
+                      {(['Por Hacer', 'En Proceso', 'Completado'] as const).map(groupStatus => {
+                        const groupTasks = filteredTasks.filter(t => t.status === groupStatus);
+                        return (
+                          <div key={groupStatus} className="space-y-3">
+                            <div className={`flex items-center justify-between border-b pb-2 ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
+                              <div className="flex items-center gap-2">
+                                <h3 className={`text-xs font-extrabold uppercase tracking-wider ${textTitle}`}>{groupStatus}</h3>
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isDarkMode ? 'bg-zinc-800 text-zinc-300' : 'bg-slate-100 text-slate-600'}`}>{groupTasks.length}</span>
+                              </div>
+                              <button onClick={() => openTaskModal(undefined, groupStatus)} className="text-xs text-[#f64e26] hover:underline flex items-center gap-1 font-semibold">
+                                <Plus size={13} />
+                                <span>Agregar a {groupStatus}</span>
+                              </button>
+                            </div>
+
+                            <div className="space-y-2">
+                              {groupTasks.length === 0 ? (
+                                <div className={`text-xs italic py-2 px-2 rounded-lg border ${isDarkMode ? 'bg-[#14161c] border-zinc-800 text-zinc-500' : 'bg-slate-50 border-slate-200 text-slate-400'}`}>
+                                  Sin tareas en esta etapa. <button onClick={() => openTaskModal(undefined, groupStatus)} className="text-[#f64e26] font-bold hover:underline">Clic aquí para agregar una.</button>
+                                </div>
+                              ) : (
+                                groupTasks.map(task => {
+                                  const c = clients.find(cl => cl.id === task.clientId);
+                                  return (
+                                    <div key={task.id} onClick={() => openTaskModal(task)} className={`border p-3.5 rounded-xl flex items-center justify-between cursor-pointer transition-all shadow-sm ${bgTaskCard}`}>
+                                      <div className="flex items-center gap-3">
+                                        <button onClick={(e) => { e.stopPropagation(); updateTaskStatus(task.id, task.status === 'Completado' ? 'Por Hacer' : 'Completado'); }}>
+                                          {task.status === 'Completado' ? <CheckCircle size={18} className="text-emerald-500 fill-emerald-950" /> : <Circle size={18} className="text-zinc-500" />}
+                                        </button>
+                                        <div>
+                                          <span className={`text-xs font-bold block ${task.status === 'Completado' ? 'line-through text-zinc-500' : textTitle}`}>{task.title}</span>
+                                          <span className="text-[10px] text-zinc-400">Deadline: {task.deadline} • Responsable: {task.assignee}</span>
+                                        </div>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <button onClick={(e) => { e.stopPropagation(); handleDuplicateTask(task); }} title="Clonar Tarea" className="p-1 hover:text-[#f64e26] text-zinc-400"><Copy size={13} /></button>
+                                        {selectedClientId === 'all' && c && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded text-black" style={{ backgroundColor: c.color }}>{c.name}</span>}
+                                      </div>
+                                    </div>
+                                  );
+                                })
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* VISTA CALENDARIO DE TAREAS */}
+                  {taskViewMode === 'calendar' && (
+                    <div className="flex-1 flex flex-col min-h-0">
+                      <div className={`flex items-center justify-between mb-3 p-3 rounded-xl border no-print ${bgTaskCard}`}>
+                        <div className="flex items-center gap-3">
+                          <h2 className={`text-sm font-bold ${textTitle}`}>
+                            {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()} (Tareas)
+                          </h2>
+                        </div>
+                        <button
+                          onClick={() => openTaskModal(undefined, 'Por Hacer', '2026-08-10')}
+                          className="h-9 px-3.5 bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold rounded-lg text-xs flex items-center gap-1.5 transition-all shadow-sm"
+                        >
+                          <Plus size={15} />
+                          <span>Nueva Tarea</span>
+                        </button>
+                      </div>
+
+                      <div className={`flex-1 rounded-2xl border flex flex-col min-h-0 overflow-hidden ${bgTaskCard}`}>
+                        <div className={`grid grid-cols-7 border-b ${gridBorderColor} text-center text-[11px] font-bold text-zinc-400 py-2`}>
+                          <div>DOM</div><div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div>
+                        </div>
+
+                        <div className="grid grid-cols-7 flex-1 overflow-y-auto">
+                          {calendarDays.map((d, index) => {
+                            if (!d.isCurrentMonth && calendarGridMode === 'month') return <div key={index} className={`border-r border-b ${gridBorderColor} opacity-20 p-2 min-h-[90px]`}></div>;
+                            const dayTasks = filteredTasks.filter(t => t.deadline === d.fullDate || t.startDate === d.fullDate);
+
+                            return (
+                              <div key={index} onClick={() => openTaskModal(undefined, 'Por Hacer', d.fullDate)} className={`border-r border-b ${gridBorderColor} p-2 min-h-[100px] hover:bg-[#f64e26]/10 transition-all cursor-pointer flex flex-col group relative`}>
+                                <div className="flex items-center justify-between mb-1.5">
+                                  <span className="text-xs font-bold text-zinc-400 group-hover:text-[#f64e26]">{d.day}</span>
+                                  <Plus size={13} className="text-zinc-500 opacity-40 group-hover:opacity-100" />
+                                </div>
+
+                                <div className="space-y-1.5 overflow-y-auto max-h-[75px] pr-0.5">
+                                  {dayTasks.map(t => (
+                                    <div key={t.id} onClick={(e) => { e.stopPropagation(); openTaskModal(t); }} className={`text-[10px] p-1.5 rounded-lg border-l-2 font-semibold truncate flex items-center justify-between group/card ${isDarkMode ? 'bg-blue-950/40 border-blue-500 text-blue-200' : 'bg-blue-50 border-blue-500 text-blue-900'}`}>
+                                      <span className="truncate">📌 {t.title}</span>
+                                      <button onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }} title="Eliminar" className="hover:text-red-400 opacity-0 group-hover/card:opacity-100"><Trash2 size={11} /></button>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* VISTA GANTT */}
+                  {taskViewMode === 'gantt' && (
+                    <div className={`flex-1 flex flex-col min-h-0 rounded-2xl border p-5 overflow-hidden ${bgTaskCard}`}>
+                      <div className={`flex items-center justify-between mb-4 border-b pb-3 ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-zinc-400">Escala:</span>
+                          <button onClick={() => setGanttScale('days')} className={`px-3 py-1 rounded-lg text-xs font-bold ${ganttScale === 'days' ? 'bg-[#f64e26] text-white' : isDarkMode ? 'bg-zinc-800 text-zinc-300' : 'bg-slate-100 text-slate-600'}`}>Días (1-31)</button>
+                          <button onClick={() => setGanttScale('weeks')} className={`px-3 py-1 rounded-lg text-xs font-bold ${ganttScale === 'weeks' ? 'bg-[#f64e26] text-white' : isDarkMode ? 'bg-zinc-800 text-zinc-300' : 'bg-slate-100 text-slate-600'}`}>Semanas (S1-S4)</button>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 overflow-x-auto overflow-y-auto">
+                        <div className="min-w-[950px] flex flex-col">
+                          <div className={`flex border-b text-[10px] font-bold text-zinc-400 pb-2 mb-3 py-2 rounded-lg ${isDarkMode ? 'border-zinc-800 bg-zinc-900/50' : 'border-slate-200/60 bg-slate-50/50'}`}>
+                            <div className="w-64 shrink-0 px-3 flex items-center gap-2"><Layers size={13} /> TAREA / ETAPA</div>
+                            <div className={`flex-1 grid grid-cols-31 text-center border-l ${isDarkMode ? 'border-zinc-800' : 'border-slate-200/60'}`}>
+                              {Array.from({ length: 31 }, (_, i) => {
+                                const dayNum = i + 1;
+                                const dayInitial = getDayInitial(currentDate.getFullYear(), currentDate.getMonth(), dayNum);
+                                return (
+                                  <div key={i} className={`flex flex-col items-center justify-center ${dayNum === 10 ? 'text-[#f64e26] font-black bg-orange-500/10 rounded-md' : ''}`}>
+                                    <span className="text-[9px] opacity-60">{dayInitial}</span>
+                                    <span>{dayNum}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          <div className="space-y-4">
+                            {(['Por Hacer', 'En Proceso', 'Completado'] as const).map(stage => {
+                              const stageTasks = filteredTasks.filter(t => t.status === stage);
+                              if (stageTasks.length === 0) return null;
+
+                              return (
+                                <div key={stage} className="space-y-2">
+                                  <div className={`text-[11px] font-extrabold uppercase tracking-wider px-2 border-b pb-1 flex items-center gap-2 ${isDarkMode ? 'text-zinc-400 border-zinc-800' : 'text-slate-600 border-slate-200/60'}`}>
+                                    <span className="w-2 h-2 rounded-full bg-[#f64e26]"></span>
+                                    <span>{stage === 'Por Hacer' ? 'Tareas pendientes' : stage === 'Completado' ? 'Finalizado' : stage}</span>
+                                  </div>
+
+                                  {stageTasks.map(task => {
+                                    const startDay = parseInt(task.startDate?.split('-')[2] || '1', 10);
+                                    const endDay = parseInt(task.deadline?.split('-')[2] || '15', 10);
+
+                                    return (
+                                      <div key={task.id} onClick={() => openTaskModal(task)} className={`flex items-center text-xs py-1.5 px-2 rounded-xl cursor-pointer ${isDarkMode ? 'hover:bg-zinc-800/50' : 'hover:bg-slate-50'}`}>
+                                        <div className="w-64 shrink-0 pr-3 truncate">
+                                          <span className={`font-bold block truncate ${textTitle}`}>{task.title}</span>
+                                        </div>
+                                        <div className={`flex-1 relative h-9 rounded-xl overflow-hidden flex items-center border ${isDarkMode ? 'bg-[#14161c] border-zinc-800' : 'bg-slate-50 border-slate-100'}`}>
+                                          <div className="absolute top-0 bottom-0 w-0.5 bg-blue-500 z-10" style={{ left: `${(9 / 31) * 100}%` }}></div>
+                                          
+                                          <div 
+                                            className={`absolute h-7 rounded-xl text-[10px] font-bold px-2 flex items-center gap-2 shadow-sm transition-all truncate border ${isDarkMode ? 'bg-[#1e222b] border-zinc-700 text-zinc-100' : 'bg-white border-slate-200/80 text-slate-800'}`} 
+                                            style={{ left: `${((startDay - 1) / 31) * 100}%`, width: `${Math.max(12, ((endDay - startDay + 1) / 31) * 100)}%` }}
+                                          >
+                                            <div className="w-5 h-5 rounded-full bg-zinc-700 font-black text-[9px] text-white flex items-center justify-center shrink-0">
+                                              {task.assignee?.substring(0, 1) || 'C'}
+                                            </div>
+                                            <span className="truncate font-bold">{task.title}</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* MÓDULO 4: KIT DE MARCA */}
               {activeTab === 'brand' && activeClientObj && (
-                <div className={`flex-1 rounded-2xl border border-slate-200/60 p-6 space-y-8 overflow-y-auto ${bgTaskCard}`}>
-                  <div className="flex items-center justify-between border-b pb-4">
+                <div className={`flex-1 rounded-2xl border p-6 space-y-8 overflow-y-auto ${bgTaskCard}`}>
+                  <div className={`flex items-center justify-between border-b pb-4 ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
                     <div>
                       <h2 className={`text-lg font-bold ${textTitle}`}>Kit de Marca: {activeClientObj.name}</h2>
-                      <p className="text-xs text-slate-500 mt-1">{activeClientObj.description}</p>
+                      <p className="text-xs text-zinc-400 mt-1">{activeClientObj.description}</p>
                     </div>
                     {activeClientObj.driveUrl && (
                       <a href={activeClientObj.driveUrl} target="_blank" rel="noreferrer" className="bg-[#f64e26] text-white px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow">
@@ -1644,27 +1717,27 @@ export default function Dashboard() {
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                    <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
                       <ImageIcon size={15} className="text-[#f64e26]" /> Logotipos de Marca
                     </h3>
 
                     <div className="grid grid-cols-3 gap-4">
                       {activeClientObj.logos?.map((logo) => (
-                        <div key={logo.id} className="p-3.5 rounded-2xl border border-slate-200/60 bg-slate-50/50 flex flex-col justify-between relative group">
+                        <div key={logo.id} className={`p-3.5 rounded-2xl border flex flex-col justify-between relative group ${isDarkMode ? 'bg-[#13151b] border-zinc-800' : 'bg-slate-50/50 border-slate-200/60'}`}>
                           <button onClick={() => handleDeleteLogo(logo.id)} className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
                             <Trash2 size={13} />
                           </button>
-                          <div className="h-32 rounded-xl bg-white border border-slate-200/60 p-2 flex items-center justify-center overflow-hidden mb-3">
+                          <div className={`h-32 rounded-xl p-2 flex items-center justify-center overflow-hidden mb-3 border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800' : 'bg-white border-slate-200/60'}`}>
                             <img src={logo.imageUrl} alt={logo.name} className="max-h-full max-w-full object-contain" />
                           </div>
-                          <span className="text-xs font-bold text-slate-800">{logo.name}</span>
+                          <span className={`text-xs font-bold ${textTitle}`}>{logo.name}</span>
                         </div>
                       ))}
 
-                      <div className="p-4 rounded-2xl border border-slate-200/60 bg-slate-50/50 space-y-3">
-                        <span className="text-xs font-bold text-slate-800 block">Agregar Nuevo Logo</span>
-                        <input type="text" placeholder="Nombre logo" value={newLogoName} onChange={(e) => setNewLogoName(e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs" />
-                        <label className="cursor-pointer bg-slate-200/60 hover:bg-slate-300/60 text-slate-800 px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all justify-center">
+                      <div className={`p-4 rounded-2xl border space-y-3 ${isDarkMode ? 'bg-[#13151b] border-zinc-800' : 'bg-slate-50/50 border-slate-200/60'}`}>
+                        <span className={`text-xs font-bold block ${textTitle}`}>Agregar Nuevo Logo</span>
+                        <input type="text" placeholder="Nombre logo" value={newLogoName} onChange={(e) => setNewLogoName(e.target.value)} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'bg-white border-slate-200'}`} />
+                        <label className={`cursor-pointer px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all justify-center border ${isDarkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-200 hover:bg-zinc-700' : 'bg-slate-200/60 border-slate-300 text-slate-800 hover:bg-slate-300/60'}`}>
                           <Upload size={14} className="text-[#f64e26]" />
                           <span>Subir desde Mac / PC</span>
                           <input type="file" accept="image/*" onChange={handleLogoFileSelect} className="hidden" />
@@ -1674,43 +1747,43 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <div className="space-y-4 border-t pt-6">
-                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                  <div className={`space-y-4 border-t pt-6 ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
+                    <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
                       <Folder size={15} className="text-[#f64e26]" /> Banco de Recursos y Archivos de Marca
                     </h3>
 
                     <div className="grid grid-cols-2 gap-3">
                       {activeClientObj.brandAssets?.map((asset) => (
-                        <div key={asset.id} className="p-3.5 rounded-xl border border-slate-200/60 bg-slate-50/50 flex items-center justify-between group">
+                        <div key={asset.id} className={`p-3.5 rounded-xl border flex items-center justify-between group ${isDarkMode ? 'bg-[#13151b] border-zinc-800' : 'bg-slate-50/50 border-slate-200/60'}`}>
                           <div className="flex items-center gap-3">
                             <Paperclip size={16} className="text-[#f64e26]" />
                             <div>
-                              <span className="text-xs font-bold block text-slate-800">{asset.name}</span>
-                              <span className="text-[10px] text-slate-500">Categoría: {asset.category}</span>
+                              <span className={`text-xs font-bold block ${textTitle}`}>{asset.name}</span>
+                              <span className="text-[10px] text-zinc-400">Categoría: {asset.category}</span>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <a href={asset.url} target="_blank" rel="noreferrer" className="p-1 text-slate-400 hover:text-slate-800"><ExternalLink size={14} /></a>
+                            <a href={asset.url} target="_blank" rel="noreferrer" className="p-1 text-zinc-400 hover:text-zinc-200"><ExternalLink size={14} /></a>
                             <button onClick={() => handleDeleteAsset(asset.id)} className="p-1 text-red-400 hover:text-red-600"><Trash2 size={14} /></button>
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    <div className="p-4 rounded-2xl border border-slate-200/60 bg-slate-50/50 space-y-3">
-                      <span className="text-xs font-bold text-slate-800 block">Agregar Recurso o Archivo</span>
+                    <div className={`p-4 rounded-2xl border space-y-3 ${isDarkMode ? 'bg-[#13151b] border-zinc-800' : 'bg-slate-50/50 border-slate-200/60'}`}>
+                      <span className={`text-xs font-bold block ${textTitle}`}>Agregar Recurso o Archivo</span>
                       <div className="grid grid-cols-2 gap-3">
-                        <input type="text" placeholder="Título activo" value={newAssetTitle} onChange={(e) => setNewAssetTitle(e.target.value)} className="bg-white border border-slate-200 rounded-lg p-2 text-xs" />
-                        <select value={newAssetCategory} onChange={(e) => setNewAssetCategory(e.target.value)} className="bg-white border border-slate-200 rounded-lg p-2 text-xs">
+                        <input type="text" placeholder="Título activo" value={newAssetTitle} onChange={(e) => setNewAssetTitle(e.target.value)} className={`rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'bg-white border-slate-200'}`} />
+                        <select value={newAssetCategory} onChange={(e) => setNewAssetCategory(e.target.value)} className={`rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'bg-white border-slate-200'}`}>
                           <option>Logo</option><option>Manual</option><option>Vector</option><option>Plantilla</option>
                         </select>
                       </div>
-                      <label className="cursor-pointer bg-slate-200/60 hover:bg-slate-300/60 text-slate-800 px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all w-fit">
+                      <label className={`cursor-pointer px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all w-fit border ${isDarkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-200 hover:bg-zinc-700' : 'bg-slate-200/60 border-slate-300 text-slate-800 hover:bg-slate-300/60'}`}>
                         <Upload size={14} className="text-[#f64e26]" />
                         <span>Subir archivo desde PC / Mac</span>
                         <input type="file" onChange={handleAssetFileSelect} className="hidden" />
                       </label>
-                      <input type="url" placeholder="O pega link Nube (Drive, Dropbox)" value={newAssetUrl} onChange={(e) => setNewAssetUrl(e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs" />
+                      <input type="url" placeholder="O pega link Nube (Drive, Dropbox)" value={newAssetUrl} onChange={(e) => setNewAssetUrl(e.target.value)} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'bg-white border-slate-200'}`} />
                       <button onClick={handleAddAssetToBrand} className="bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold py-2 rounded-lg text-xs w-full shadow-sm">+ Guardar Recurso</button>
                     </div>
                   </div>
@@ -1721,9 +1794,9 @@ export default function Dashboard() {
 
             {/* COLUMNA DERECHA */}
             <div className="w-80 flex flex-col gap-5 no-print">
-              <div className={`rounded-2xl border border-slate-200/60 p-4 ${bgTaskCard}`}>
+              <div className={`rounded-2xl border p-4 ${bgTaskCard}`}>
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
                     <DollarSign size={14} className="text-[#f64e26]" />
                     <span>Control Financiero</span>
                   </h3>
@@ -1735,39 +1808,39 @@ export default function Dashboard() {
                 </div>
 
                 {selectedClientId !== 'all' && activeClientObj ? (
-                  <div className="bg-slate-50/50 p-3.5 rounded-xl border border-slate-200/60 space-y-2.5 text-xs">
-                    <div className="flex justify-between"><span className="text-slate-500">Mensualidad:</span><span className="font-extrabold">${activeClientObj.monthlyFee?.toLocaleString('es-CL')}</span></div>
-                    <div className="flex justify-between"><span className="text-slate-500">Total Abonado:</span><span className="font-bold text-emerald-600">${totalAbonado.toLocaleString('es-CL')}</span></div>
-                    <div className="flex justify-between"><span className="text-slate-500">Saldo Pendiente:</span><span className="font-bold text-red-500">${saldoPendiente > 0 ? saldoPendiente.toLocaleString('es-CL') : 0}</span></div>
-                    <div className="flex justify-between pt-2 border-t"><span className="text-slate-500">Estado:</span><span className="font-bold text-emerald-600 px-2 py-0.5 rounded bg-emerald-100">{activeClientObj.paymentStatus}</span></div>
+                  <div className={`p-3.5 rounded-xl border space-y-2.5 text-xs ${isDarkMode ? 'bg-[#13151b] border-zinc-800/80' : 'bg-slate-50/50 border-slate-200/60'}`}>
+                    <div className="flex justify-between"><span className="text-zinc-400">Mensualidad:</span><span className={`font-extrabold ${textTitle}`}>${activeClientObj.monthlyFee?.toLocaleString('es-CL')}</span></div>
+                    <div className="flex justify-between"><span className="text-zinc-400">Total Abonado:</span><span className="font-bold text-emerald-500">${totalAbonado.toLocaleString('es-CL')}</span></div>
+                    <div className="flex justify-between"><span className="text-zinc-400">Saldo Pendiente:</span><span className="font-bold text-red-400">${saldoPendiente > 0 ? saldoPendiente.toLocaleString('es-CL') : 0}</span></div>
+                    <div className={`flex justify-between pt-2 border-t ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}><span className="text-zinc-400">Estado:</span><span className="font-bold text-emerald-500 px-2 py-0.5 rounded bg-emerald-500/10">{activeClientObj.paymentStatus}</span></div>
 
                     {activeClientObj.abonos && activeClientObj.abonos.length > 0 && (
-                      <div className="pt-2 border-t space-y-1">
-                        <span className="text-[10px] font-bold text-slate-400 block uppercase">Abonos Registrados:</span>
+                      <div className={`pt-2 border-t space-y-1 ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
+                        <span className="text-[10px] font-bold text-zinc-400 block uppercase">Abonos Registrados:</span>
                         {activeClientObj.abonos.map(ab => (
-                          <div key={ab.id} className="text-[10px] bg-white p-1.5 rounded border border-slate-200/60 flex justify-between">
+                          <div key={ab.id} className={`text-[10px] p-1.5 rounded border flex justify-between ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800' : 'bg-white border-slate-200/60'}`}>
                             <span>{ab.date} ({ab.note}):</span>
-                            <span className="font-bold text-emerald-600">${ab.amount.toLocaleString('es-CL')}</span>
+                            <span className="font-bold text-emerald-500">${ab.amount.toLocaleString('es-CL')}</span>
                           </div>
                         ))}
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div className="text-xs text-slate-400">Selecciona un proyecto.</div>
+                  <div className="text-xs text-zinc-400">Selecciona un proyecto.</div>
                 )}
               </div>
 
-              <div className={`rounded-2xl border border-slate-200/60 p-4 ${bgTaskCard}`}>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+              <div className={`rounded-2xl border p-4 ${bgTaskCard}`}>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3 flex items-center gap-2">
                   <Video size={14} className="text-[#f64e26]" />
                   <span>Próximos Rodajes</span>
                 </h3>
 
                 <div className="space-y-2">
                   {filteredShoots.slice(0, 2).map((s) => (
-                    <div key={s.id} className="p-2.5 bg-slate-50/50 rounded-lg border border-slate-200/60 text-xs">
-                      <div className="font-bold text-slate-800">{s.location}</div>
+                    <div key={s.id} className={`p-2.5 rounded-lg border text-xs ${isDarkMode ? 'bg-[#13151b] border-zinc-800' : 'bg-slate-50/50 border-slate-200/60'}`}>
+                      <div className={`font-bold ${textTitle}`}>{s.location}</div>
                       <div className="text-[10px] text-[#f64e26] mt-0.5">{s.date} a las {s.time}</div>
                     </div>
                   ))}
@@ -1785,33 +1858,33 @@ export default function Dashboard() {
       {showCotizadorModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className={`border w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 ${bgTaskCard}`}>
-            <div className="flex items-center justify-between border-b pb-3">
+            <div className={`flex items-center justify-between border-b pb-3 ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
               <h3 className={`text-base font-bold flex items-center gap-2 ${textTitle}`}>
                 <Calculator size={18} className="text-[#f64e26]" /> Cotizador de Fee Mensual
               </h3>
-              <button onClick={() => setShowCotizadorModal(false)}><X size={18} className="text-slate-400" /></button>
+              <button onClick={() => setShowCotizadorModal(false)}><X size={18} className="text-zinc-400" /></button>
             </div>
 
-            <input type="text" placeholder="Nombre de la marca / prospecto" value={cotizador.clientName} onChange={(e) => setCotizador({...cotizador, clientName: e.target.value})} className="w-full border rounded-lg p-2.5 text-xs font-bold" />
+            <input type="text" placeholder="Nombre de la marca / prospecto" value={cotizador.clientName} onChange={(e) => setCotizador({...cotizador, clientName: e.target.value})} className={`w-full rounded-lg p-2.5 text-xs font-bold border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
 
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div>
-                <label className="text-[10px] text-slate-500 block mb-1 font-bold">N° Reels al mes</label>
-                <input type="number" value={cotizador.reels} onChange={(e) => setCotizador({...cotizador, reels: Number(e.target.value)})} className="w-full border rounded-lg p-2 text-xs" />
+                <label className="text-[10px] text-zinc-400 block mb-1 font-bold">N° Reels al mes</label>
+                <input type="number" value={cotizador.reels} onChange={(e) => setCotizador({...cotizador, reels: Number(e.target.value)})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
               </div>
               <div>
-                <label className="text-[10px] text-slate-500 block mb-1 font-bold">N° Fotos / Carruseles</label>
-                <input type="number" value={cotizador.fotos} onChange={(e) => setCotizador({...cotizador, fotos: Number(e.target.value)})} className="w-full border rounded-lg p-2 text-xs" />
+                <label className="text-[10px] text-zinc-400 block mb-1 font-bold">N° Fotos / Carruseles</label>
+                <input type="number" value={cotizador.fotos} onChange={(e) => setCotizador({...cotizador, fotos: Number(e.target.value)})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
               </div>
             </div>
 
-            <div className="p-4 bg-orange-50 border border-orange-200 rounded-xl text-center space-y-1">
-              <span className="text-[10px] font-bold text-slate-500 uppercase block">Fee Mensual Sugerido</span>
+            <div className={`p-4 border rounded-xl text-center space-y-1 ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800' : 'bg-orange-50 border-orange-200'}`}>
+              <span className="text-[10px] font-bold text-zinc-400 uppercase block">Fee Mensual Sugerido</span>
               <span className="text-2xl font-black text-[#f64e26]">${calculatedFee.toLocaleString('es-CL')} / mes</span>
             </div>
 
-            <div className="flex gap-2 justify-end pt-2">
-              <button onClick={() => setShowCotizadorModal(false)} className="px-4 py-2 text-xs text-slate-500">Cerrar</button>
+            <div className={`flex gap-2 justify-end pt-2 border-t ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
+              <button onClick={() => setShowCotizadorModal(false)} className="px-4 py-2 text-xs text-zinc-400">Cerrar</button>
               <button onClick={handleCreateClientFromCotizador} className="bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm">+ Crear Cliente con esta Tarifa</button>
             </div>
           </div>
@@ -1821,52 +1894,52 @@ export default function Dashboard() {
       {showClientModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className={`border w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto ${bgTaskCard}`}>
-            <div className="flex items-center justify-between border-b pb-3">
+            <div className={`flex items-center justify-between border-b pb-3 ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
               <h3 className={`text-base font-bold ${textTitle}`}>Nuevo Cliente / Proyecto</h3>
               <button onClick={() => setShowClientModal(false)}><X size={18} className="text-zinc-400" /></button>
             </div>
 
             <div>
-              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Nombre del Cliente / Marca (*)</label>
-              <input type="text" placeholder="Ej: Mitz Bar Lounge, Aloha Chic" value={newClient.name} onChange={(e) => setNewClient({...newClient, name: e.target.value})} className="w-full border rounded-lg p-2.5 text-xs font-bold" />
+              <label className="text-[10px] text-zinc-400 block mb-1 font-bold">Nombre del Cliente / Marca (*)</label>
+              <input type="text" placeholder="Ej: Mitz Bar Lounge, Aloha Chic" value={newClient.name} onChange={(e) => setNewClient({...newClient, name: e.target.value})} className={`w-full rounded-lg p-2.5 text-xs font-bold border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
             </div>
 
             <div>
-              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Color Identificatorio de Marca</label>
+              <label className="text-[10px] text-zinc-400 block mb-1 font-bold">Color Identificatorio de Marca</label>
               <div className="flex items-center gap-3">
                 <input type="color" value={newClient.color} onChange={(e) => setNewClient({...newClient, color: e.target.value})} className="w-10 h-10 rounded-xl bg-transparent border-0 cursor-pointer" />
-                <span className="text-xs font-mono font-bold text-slate-700">{newClient.color}</span>
+                <span className={`text-xs font-mono font-bold ${textTitle}`}>{newClient.color}</span>
               </div>
             </div>
 
             <div>
-              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Descripción / Rubro del Cliente</label>
-              <textarea placeholder="Síntesis del servicio o tipo de contrato..." value={newClient.description} onChange={(e) => setNewClient({...newClient, description: e.target.value})} className="w-full border rounded-lg p-2 text-xs h-16"></textarea>
+              <label className="text-[10px] text-zinc-400 block mb-1 font-bold">Descripción / Rubro del Cliente</label>
+              <textarea placeholder="Síntesis del servicio o tipo de contrato..." value={newClient.description} onChange={(e) => setNewClient({...newClient, description: e.target.value})} className={`w-full rounded-lg p-2 text-xs h-16 border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`}></textarea>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] text-slate-500 block mb-1 font-bold">Valor Mensualidad ($)</label>
-                <input type="number" placeholder="Ej: 450000" value={newClient.monthlyFee || ''} onChange={(e) => setNewClient({...newClient, monthlyFee: Number(e.target.value)})} className="w-full border rounded-lg p-2 text-xs" />
+                <label className="text-[10px] text-zinc-400 block mb-1 font-bold">Valor Mensualidad ($)</label>
+                <input type="number" placeholder="Ej: 450000" value={newClient.monthlyFee || ''} onChange={(e) => setNewClient({...newClient, monthlyFee: Number(e.target.value)})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
               </div>
               <div>
-                <label className="text-[10px] text-slate-500 block mb-1 font-bold">Día de Cobro Pactado</label>
-                <input type="text" placeholder="Ej: 05 de cada mes" value={newClient.paymentDueDate} onChange={(e) => setNewClient({...newClient, paymentDueDate: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
+                <label className="text-[10px] text-zinc-400 block mb-1 font-bold">Día de Cobro Pactado</label>
+                <input type="text" placeholder="Ej: 05 de cada mes" value={newClient.paymentDueDate} onChange={(e) => setNewClient({...newClient, paymentDueDate: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
               </div>
             </div>
 
             <div>
-              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Link a Carpeta Google Drive / Nube</label>
-              <input type="url" placeholder="https://drive.google.com/..." value={newClient.driveUrl} onChange={(e) => setNewClient({...newClient, driveUrl: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
+              <label className="text-[10px] text-zinc-400 block mb-1 font-bold">Link a Carpeta Google Drive / Nube</label>
+              <input type="url" placeholder="https://drive.google.com/..." value={newClient.driveUrl} onChange={(e) => setNewClient({...newClient, driveUrl: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
             </div>
 
             <div>
-              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Tono de Voz / Pautas de Comunicación</label>
-              <input type="text" placeholder="Ej: Juvenil, festivo, dinámico y muy visual" value={newClient.brandVoice} onChange={(e) => setNewClient({...newClient, brandVoice: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
+              <label className="text-[10px] text-zinc-400 block mb-1 font-bold">Tono de Voz / Pautas de Comunicación</label>
+              <input type="text" placeholder="Ej: Juvenil, festivo, dinámico y muy visual" value={newClient.brandVoice} onChange={(e) => setNewClient({...newClient, brandVoice: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
             </div>
 
-            <div className="flex gap-2 justify-end pt-3 border-t">
-              <button onClick={() => setShowClientModal(false)} className="px-4 py-2 text-xs text-slate-500">Cancelar</button>
+            <div className={`flex gap-2 justify-end pt-3 border-t ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
+              <button onClick={() => setShowClientModal(false)} className="px-4 py-2 text-xs text-zinc-400">Cancelar</button>
               <button onClick={handleCreateClientFull} className="bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm">Crear Cliente</button>
             </div>
           </div>
@@ -1876,56 +1949,56 @@ export default function Dashboard() {
       {showEditClientModal && editClientForm && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className={`border w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto ${bgTaskCard}`}>
-            <div className="flex items-center justify-between border-b pb-3">
+            <div className={`flex items-center justify-between border-b pb-3 ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
               <h3 className={`text-base font-bold ${textTitle}`}>Gestionar / Editar Cliente</h3>
-              <button onClick={() => setShowEditClientModal(false)}><X size={18} className="text-slate-400" /></button>
+              <button onClick={() => setShowEditClientModal(false)}><X size={18} className="text-zinc-400" /></button>
             </div>
 
             <div>
-              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Nombre del Cliente / Marca</label>
-              <input type="text" value={editClientForm.name} onChange={(e) => setEditClientForm({...editClientForm, name: e.target.value})} className="w-full border rounded-lg p-2.5 text-xs font-bold" />
+              <label className="text-[10px] text-zinc-400 block mb-1 font-bold">Nombre del Cliente / Marca</label>
+              <input type="text" value={editClientForm.name} onChange={(e) => setEditClientForm({...editClientForm, name: e.target.value})} className={`w-full rounded-lg p-2.5 text-xs font-bold border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
             </div>
 
             <div>
-              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Color Identificatorio de Marca</label>
+              <label className="text-[10px] text-zinc-400 block mb-1 font-bold">Color Identificatorio de Marca</label>
               <div className="flex items-center gap-3">
                 <input type="color" value={editClientForm.color} onChange={(e) => setEditClientForm({...editClientForm, color: e.target.value})} className="w-10 h-10 rounded-xl bg-transparent border-0 cursor-pointer" />
-                <span className="text-xs font-mono font-bold text-slate-700">{editClientForm.color}</span>
+                <span className={`text-xs font-mono font-bold ${textTitle}`}>{editClientForm.color}</span>
               </div>
             </div>
 
             <div>
-              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Descripción del Proyecto</label>
-              <textarea value={editClientForm.description} onChange={(e) => setEditClientForm({...editClientForm, description: e.target.value})} className="w-full border rounded-lg p-2 text-xs h-16"></textarea>
+              <label className="text-[10px] text-zinc-400 block mb-1 font-bold">Descripción del Proyecto</label>
+              <textarea value={editClientForm.description} onChange={(e) => setEditClientForm({...editClientForm, description: e.target.value})} className={`w-full rounded-lg p-2 text-xs h-16 border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`}></textarea>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] text-slate-500 block mb-1 font-bold">Mensualidad ($)</label>
-                <input type="number" value={editClientForm.monthlyFee || 0} onChange={(e) => setEditClientForm({...editClientForm, monthlyFee: Number(e.target.value)})} className="w-full border rounded-lg p-2 text-xs" />
+                <label className="text-[10px] text-zinc-400 block mb-1 font-bold">Mensualidad ($)</label>
+                <input type="number" value={editClientForm.monthlyFee || 0} onChange={(e) => setEditClientForm({...editClientForm, monthlyFee: Number(e.target.value)})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
               </div>
               <div>
-                <label className="text-[10px] text-slate-500 block mb-1 font-bold">Día de Cobro</label>
-                <input type="text" value={editClientForm.paymentDueDate || ''} onChange={(e) => setEditClientForm({...editClientForm, paymentDueDate: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
+                <label className="text-[10px] text-zinc-400 block mb-1 font-bold">Día de Cobro</label>
+                <input type="text" value={editClientForm.paymentDueDate || ''} onChange={(e) => setEditClientForm({...editClientForm, paymentDueDate: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
               </div>
             </div>
 
             <div>
-              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Link a Google Drive / Nube Principal</label>
-              <input type="url" value={editClientForm.driveUrl || ''} onChange={(e) => setEditClientForm({...editClientForm, driveUrl: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
+              <label className="text-[10px] text-zinc-400 block mb-1 font-bold">Link a Google Drive / Nube Principal</label>
+              <input type="url" value={editClientForm.driveUrl || ''} onChange={(e) => setEditClientForm({...editClientForm, driveUrl: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
             </div>
 
             <div>
-              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Tono de Voz / Lineamientos de Comunicación</label>
-              <input type="text" value={editClientForm.brandVoice || ''} onChange={(e) => setEditClientForm({...editClientForm, brandVoice: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
+              <label className="text-[10px] text-zinc-400 block mb-1 font-bold">Tono de Voz / Lineamientos de Comunicación</label>
+              <input type="text" value={editClientForm.brandVoice || ''} onChange={(e) => setEditClientForm({...editClientForm, brandVoice: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
             </div>
 
-            <div className="flex items-center justify-between pt-3 border-t">
+            <div className={`flex items-center justify-between pt-3 border-t ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
               <div className="flex gap-2">
-                <button onClick={() => handleToggleArchiveClient(editClientForm.id)} className="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition-all">
+                <button onClick={() => handleToggleArchiveClient(editClientForm.id)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${isDarkMode ? 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
                   {editClientForm.archived ? 'Desarchivar' : 'Archivar'}
                 </button>
-                <button onClick={() => handleDeleteClient(editClientForm.id)} className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all">
+                <button onClick={() => handleDeleteClient(editClientForm.id)} className="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-all">
                   <Trash2 size={15} />
                 </button>
               </div>
@@ -1941,19 +2014,19 @@ export default function Dashboard() {
       {showPaymentModal && activeClientObj && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className={`border w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 ${bgTaskCard}`}>
-            <div className="flex items-center justify-between border-b pb-3">
+            <div className={`flex items-center justify-between border-b pb-3 ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
               <h3 className={`text-base font-bold ${textTitle}`}>Gestión Financiera - {activeClientObj.name}</h3>
-              <button onClick={() => setShowPaymentModal(false)}><X size={18} className="text-slate-400" /></button>
+              <button onClick={() => setShowPaymentModal(false)}><X size={18} className="text-zinc-400" /></button>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] text-slate-500 block mb-1">Valor Mensual ($)</label>
-                <input type="number" value={paymentForm.monthlyFee} onChange={(e) => setPaymentForm({...paymentForm, monthlyFee: Number(e.target.value)})} className="w-full border rounded-lg p-2 text-xs font-bold" />
+                <label className="text-[10px] text-zinc-400 block mb-1">Valor Mensual ($)</label>
+                <input type="number" value={paymentForm.monthlyFee} onChange={(e) => setPaymentForm({...paymentForm, monthlyFee: Number(e.target.value)})} className={`w-full rounded-lg p-2 text-xs font-bold border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
               </div>
               <div>
-                <label className="text-[10px] text-slate-500 block mb-1">Estado de Pago</label>
-                <select value={paymentForm.paymentStatus} onChange={(e) => setPaymentForm({...paymentForm, paymentStatus: e.target.value as any})} className="w-full border rounded-lg p-2 text-xs">
+                <label className="text-[10px] text-zinc-400 block mb-1">Estado de Pago</label>
+                <select value={paymentForm.paymentStatus} onChange={(e) => setPaymentForm({...paymentForm, paymentStatus: e.target.value as any})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`}>
                   <option value="Pagado">Pagado</option>
                   <option value="Abonado">Abonado (Parcial)</option>
                   <option value="Pendiente">Pendiente</option>
@@ -1962,14 +2035,14 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="p-3 bg-slate-50 rounded-xl border space-y-2">
-              <span className="text-xs font-bold text-slate-800 block">Registrar Nuevo Abono</span>
-              <input type="number" placeholder="Monto abonado ($)" value={paymentForm.abonoAmount || ''} onChange={(e) => setPaymentForm({...paymentForm, abonoAmount: Number(e.target.value)})} className="w-full bg-white border rounded-lg p-2 text-xs" />
-              <input type="text" placeholder="Nota / Detalle" value={paymentForm.abonoNote} onChange={(e) => setPaymentForm({...paymentForm, abonoNote: e.target.value})} className="w-full bg-white border rounded-lg p-2 text-xs" />
+            <div className={`p-3 rounded-xl border space-y-2 ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800' : 'bg-slate-50 border-slate-200'}`}>
+              <span className={`text-xs font-bold block ${textTitle}`}>Registrar Nuevo Abono</span>
+              <input type="number" placeholder="Monto abonado ($)" value={paymentForm.abonoAmount || ''} onChange={(e) => setPaymentForm({...paymentForm, abonoAmount: Number(e.target.value)})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#16181d] border-zinc-800 text-zinc-100' : 'bg-white border-slate-200'}`} />
+              <input type="text" placeholder="Nota / Detalle" value={paymentForm.abonoNote} onChange={(e) => setPaymentForm({...paymentForm, abonoNote: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#16181d] border-zinc-800 text-zinc-100' : 'bg-white border-slate-200'}`} />
             </div>
 
-            <div className="flex gap-2 justify-end pt-3 border-t">
-              <button onClick={() => setShowPaymentModal(false)} className="px-4 py-2 text-xs text-slate-500">Cancelar</button>
+            <div className={`flex gap-2 justify-end pt-3 border-t ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
+              <button onClick={() => setShowPaymentModal(false)} className="px-4 py-2 text-xs text-zinc-400">Cancelar</button>
               <button onClick={handleSavePaymentInfo} className="bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm">Guardar Finanzas</button>
             </div>
           </div>
@@ -1979,40 +2052,40 @@ export default function Dashboard() {
       {showPostModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className={`border w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto ${bgTaskCard}`}>
-            <div className="flex items-center justify-between border-b pb-3">
+            <div className={`flex items-center justify-between border-b pb-3 ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
               <h3 className={`text-base font-bold ${textTitle}`}>Programar Contenido ({selectedDateForModal})</h3>
-              <button onClick={() => setShowPostModal(false)}><X size={18} className="text-slate-400" /></button>
+              <button onClick={() => setShowPostModal(false)}><X size={18} className="text-zinc-400" /></button>
             </div>
 
             <div>
-              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Canales de Publicación</label>
+              <label className="text-[10px] text-zinc-400 block mb-1 font-bold">Canales de Publicación</label>
               <div className="flex flex-wrap gap-2">
                 {availableNetworks.map(net => (
-                  <button key={net} type="button" onClick={() => toggleNetworkInPost(net)} className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${newPost.networks.includes(net) ? 'bg-[#f64e26] text-white border-[#f64e26]' : 'bg-slate-100 text-slate-600'}`}>{net} {newPost.networks.includes(net) && '✓'}</button>
+                  <button key={net} type="button" onClick={() => toggleNetworkInPost(net)} className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${newPost.networks.includes(net) ? 'bg-[#f64e26] text-white border-[#f64e26]' : isDarkMode ? 'bg-zinc-800 text-zinc-300 border-zinc-700' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>{net} {newPost.networks.includes(net) && '✓'}</button>
                 ))}
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div><label className="text-[10px] text-slate-500 block mb-1">Hora</label><input type="time" value={newPost.time} onChange={(e) => setNewPost({...newPost, time: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
-              <div><label className="text-[10px] text-slate-500 block mb-1">Formato</label><select value={newPost.format} onChange={(e) => setNewPost({...newPost, format: e.target.value})} className="w-full border rounded-lg p-2 text-xs"><option>Reel</option><option>Carrusel</option><option>Imagen Estática</option><option>Short</option></select></div>
+              <div><label className="text-[10px] text-zinc-400 block mb-1">Hora</label><input type="time" value={newPost.time} onChange={(e) => setNewPost({...newPost, time: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} /></div>
+              <div><label className="text-[10px] text-zinc-400 block mb-1">Formato</label><select value={newPost.format} onChange={(e) => setNewPost({...newPost, format: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`}><option>Reel</option><option>Carrusel</option><option>Imagen Estática</option><option>Short</option></select></div>
             </div>
 
-            <div><label className="text-[10px] text-slate-500 block mb-1">Tema / Asunto</label><input type="text" placeholder="Ej: Lanzamiento producto" value={newPost.topic} onChange={(e) => setNewPost({...newPost, topic: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
-            <div><label className="text-[10px] text-slate-500 block mb-1">Copy / Texto</label><textarea placeholder="Copy completo..." value={newPost.copy} onChange={(e) => setNewPost({...newPost, copy: e.target.value})} className="w-full border rounded-lg p-2 text-xs h-20"></textarea></div>
+            <div><label className="text-[10px] text-zinc-400 block mb-1">Tema / Asunto</label><input type="text" placeholder="Ej: Lanzamiento producto" value={newPost.topic} onChange={(e) => setNewPost({...newPost, topic: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} /></div>
+            <div><label className="text-[10px] text-zinc-400 block mb-1">Copy / Texto</label><textarea placeholder="Copy completo..." value={newPost.copy} onChange={(e) => setNewPost({...newPost, copy: e.target.value})} className={`w-full rounded-lg p-2 text-xs h-20 border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`}></textarea></div>
 
-            <div className="space-y-2 pt-2 border-t">
-              <input type="url" placeholder="Link de Nube (Drive, Canva)" value={newPost.assetUrl} onChange={(e) => setNewPost({...newPost, assetUrl: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
+            <div className={`space-y-2 pt-2 border-t ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
+              <input type="url" placeholder="Link de Nube (Drive, Canva)" value={newPost.assetUrl} onChange={(e) => setNewPost({...newPost, assetUrl: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
               
-              <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 border text-slate-700 px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all w-fit">
+              <label className={`cursor-pointer px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all w-fit border ${isDarkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-200 hover:bg-zinc-700' : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'}`}>
                 <Upload size={14} className="text-[#f64e26]" />
                 <span>{newPost.fileName ? `✓ ${newPost.fileName}` : 'Adjuntar archivo desde Mac / PC'}</span>
                 <input type="file" onChange={(e) => setNewPost({...newPost, fileName: e.target.files?.[0]?.name || ''})} className="hidden" />
               </label>
             </div>
 
-            <div className="flex gap-2 justify-end pt-2 border-t">
-              <button onClick={() => setShowPostModal(false)} className="px-4 py-2 text-xs text-slate-500">Cancelar</button>
+            <div className={`flex gap-2 justify-end pt-2 border-t ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
+              <button onClick={() => setShowPostModal(false)} className="px-4 py-2 text-xs text-zinc-400">Cancelar</button>
               <button onClick={handleSavePost} className="bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm">Guardar Post</button>
             </div>
           </div>
@@ -2022,22 +2095,22 @@ export default function Dashboard() {
       {showShootModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className={`border w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto ${bgTaskCard}`}>
-            <div className="flex items-center justify-between border-b pb-3">
+            <div className={`flex items-center justify-between border-b pb-3 ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
               <h3 className={`text-base font-bold ${textTitle}`}>Agendar Rodaje ({selectedDateForModal})</h3>
-              <button onClick={() => setShowShootModal(false)}><X size={18} className="text-slate-400" /></button>
+              <button onClick={() => setShowShootModal(false)}><X size={18} className="text-zinc-400" /></button>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div><label className="text-[10px] text-slate-500 block mb-1">Hora Citación</label><input type="time" value={newShoot.time} onChange={(e) => setNewShoot({...newShoot, time: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
-              <div><label className="text-[10px] text-slate-500 block mb-1">Locación / Dirección</label><input type="text" placeholder="Ej: Terraza del local" value={newShoot.location} onChange={(e) => setNewShoot({...newShoot, location: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
+              <div><label className="text-[10px] text-zinc-400 block mb-1">Hora Citación</label><input type="time" value={newShoot.time} onChange={(e) => setNewShoot({...newShoot, time: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} /></div>
+              <div><label className="text-[10px] text-zinc-400 block mb-1">Locación / Dirección</label><input type="text" placeholder="Ej: Terraza del local" value={newShoot.location} onChange={(e) => setNewShoot({...newShoot, location: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} /></div>
             </div>
 
-            <div><label className="text-[10px] text-slate-500 block mb-1">Guion / Escaleta</label><textarea placeholder="Toma 1: Preparación..." value={newShoot.script} onChange={(e) => setNewShoot({...newShoot, script: e.target.value})} className="w-full border rounded-lg p-2 text-xs h-20"></textarea></div>
-            <div><label className="text-[10px] text-slate-500 block mb-1">Equipamiento</label><input type="text" placeholder="Aro de luz, cámara 4K" value={newShoot.assets} onChange={(e) => setNewShoot({...newShoot, assets: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
-            <div><label className="text-[10px] text-slate-500 block mb-1">Participantes</label><input type="text" placeholder="Cris, Camila, Barman" value={newShoot.participants} onChange={(e) => setNewShoot({...newShoot, participants: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
+            <div><label className="text-[10px] text-zinc-400 block mb-1">Guion / Escaleta</label><textarea placeholder="Toma 1: Preparación..." value={newShoot.script} onChange={(e) => setNewShoot({...newShoot, script: e.target.value})} className={`w-full rounded-lg p-2 text-xs h-20 border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`}></textarea></div>
+            <div><label className="text-[10px] text-zinc-400 block mb-1">Equipamiento</label><input type="text" placeholder="Aro de luz, cámara 4K" value={newShoot.assets} onChange={(e) => setNewShoot({...newShoot, assets: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} /></div>
+            <div><label className="text-[10px] text-zinc-400 block mb-1">Participantes</label><input type="text" placeholder="Cris, Camila, Barman" value={newShoot.participants} onChange={(e) => setNewShoot({...newShoot, participants: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} /></div>
 
-            <div className="flex gap-2 justify-end pt-2 border-t">
-              <button onClick={() => setShowShootModal(false)} className="px-4 py-2 text-xs text-slate-500">Cancelar</button>
+            <div className={`flex gap-2 justify-end pt-2 border-t ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
+              <button onClick={() => setShowShootModal(false)} className="px-4 py-2 text-xs text-zinc-400">Cancelar</button>
               <button onClick={handleSaveShoot} className="bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm">Guardar Rodaje</button>
             </div>
           </div>
@@ -2047,46 +2120,46 @@ export default function Dashboard() {
       {showTaskModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className={`border w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto ${bgTaskCard}`}>
-            <div className="flex items-center justify-between border-b pb-3">
+            <div className={`flex items-center justify-between border-b pb-3 ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
               <h3 className={`text-base font-bold ${textTitle}`}>{selectedTaskForEdit ? 'Editar Tarea' : 'Nueva Tarea'}</h3>
-              <button onClick={() => setShowTaskModal(false)}><X size={18} className="text-slate-400" /></button>
+              <button onClick={() => setShowTaskModal(false)}><X size={18} className="text-zinc-400" /></button>
             </div>
 
-            <div className="p-3 bg-slate-50 border border-slate-200/60 rounded-lg space-y-1.5">
-              <span className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
+            <div className={`p-3 rounded-lg border space-y-1.5 ${isDarkMode ? 'bg-[#13151b] border-zinc-800' : 'bg-slate-50 border-slate-200/60'}`}>
+              <span className="text-[10px] font-bold text-zinc-400 uppercase flex items-center gap-1">
                 <Zap size={13} className="text-[#f64e26]" /> Cargar Plantilla Rápida:
               </span>
               <div className="flex gap-2">
-                <button type="button" onClick={() => applyTaskTemplate('reel')} className="bg-white hover:bg-slate-100 border text-slate-700 px-2.5 py-1 rounded-lg text-[10px] font-bold">🎬 Producción Reel</button>
-                <button type="button" onClick={() => applyTaskTemplate('parrilla')} className="bg-white hover:bg-slate-100 border text-slate-700 px-2.5 py-1 rounded-lg text-[10px] font-bold">📅 Parrilla Redes</button>
+                <button type="button" onClick={() => applyTaskTemplate('reel')} className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-700 text-zinc-200 hover:bg-zinc-800' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'}`}>🎬 Producción Reel</button>
+                <button type="button" onClick={() => applyTaskTemplate('parrilla')} className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-700 text-zinc-200 hover:bg-zinc-800' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'}`}>📅 Parrilla Redes</button>
               </div>
             </div>
 
-            <input type="text" placeholder="Título de la tarea..." value={taskForm.title} onChange={(e) => setTaskForm({...taskForm, title: e.target.value})} className="w-full border rounded-lg p-2.5 text-xs font-bold" />
+            <input type="text" placeholder="Título de la tarea..." value={taskForm.title} onChange={(e) => setTaskForm({...taskForm, title: e.target.value})} className={`w-full rounded-lg p-2.5 text-xs font-bold border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
 
             <div className="grid grid-cols-2 gap-3">
-              <div><label className="text-[10px] text-slate-500 block mb-1">Fecha Inicio</label><input type="date" value={taskForm.startDate} onChange={(e) => setTaskForm({...taskForm, startDate: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
-              <div><label className="text-[10px] text-slate-500 block mb-1">Fecha Límite</label><input type="date" value={taskForm.deadline} onChange={(e) => setTaskForm({...taskForm, deadline: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
+              <div><label className="text-[10px] text-zinc-400 block mb-1">Fecha Inicio</label><input type="date" value={taskForm.startDate} onChange={(e) => setTaskForm({...taskForm, startDate: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} /></div>
+              <div><label className="text-[10px] text-zinc-400 block mb-1">Fecha Límite</label><input type="date" value={taskForm.deadline} onChange={(e) => setTaskForm({...taskForm, deadline: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} /></div>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
-              <div><label className="text-[10px] text-slate-500 block mb-1">Etapa</label><select value={taskForm.status} onChange={(e) => setTaskForm({...taskForm, status: e.target.value as any})} className="w-full border rounded-lg p-2 text-xs"><option value="Por Hacer">Por Hacer</option><option value="En Proceso">En Proceso</option><option value="Completado">Completado</option></select></div>
-              <div><label className="text-[10px] text-slate-500 block mb-1">Prioridad</label><select value={taskForm.priority} onChange={(e) => setTaskForm({...taskForm, priority: e.target.value as any})} className="w-full border rounded-lg p-2 text-xs"><option value="Alta">Alta</option><option value="Media">Media</option><option value="Baja">Baja</option></select></div>
-              <div><label className="text-[10px] text-slate-500 block mb-1">Responsable</label><input type="text" value={taskForm.assignee} onChange={(e) => setTaskForm({...taskForm, assignee: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
+              <div><label className="text-[10px] text-zinc-400 block mb-1">Etapa</label><select value={taskForm.status} onChange={(e) => setTaskForm({...taskForm, status: e.target.value as any})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`}><option value="Por Hacer">Por Hacer</option><option value="En Proceso">En Proceso</option><option value="Completado">Completado</option></select></div>
+              <div><label className="text-[10px] text-zinc-400 block mb-1">Prioridad</label><select value={taskForm.priority} onChange={(e) => setTaskForm({...taskForm, priority: e.target.value as any})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`}><option value="Alta">Alta</option><option value="Media">Media</option><option value="Baja">Baja</option></select></div>
+              <div><label className="text-[10px] text-zinc-400 block mb-1">Responsable</label><input type="text" value={taskForm.assignee} onChange={(e) => setTaskForm({...taskForm, assignee: e.target.value})} className={`w-full rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} /></div>
             </div>
 
-            <textarea placeholder="Descripción detallada..." value={taskForm.description} onChange={(e) => setTaskForm({...taskForm, description: e.target.value})} className="w-full border rounded-lg p-2 text-xs h-20"></textarea>
+            <textarea placeholder="Descripción detallada..." value={taskForm.description} onChange={(e) => setTaskForm({...taskForm, description: e.target.value})} className={`w-full rounded-lg p-2 text-xs h-20 border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`}></textarea>
 
             <div className="space-y-2">
-              <label className="text-[10px] text-slate-500 block font-bold">Subtareas / Checklist</label>
+              <label className="text-[10px] text-zinc-400 block font-bold">Subtareas / Checklist</label>
               <div className="flex gap-2">
-                <input type="text" placeholder="Nueva subtarea..." value={newSubtaskTitle} onChange={(e) => setNewSubtaskTitle(e.target.value)} className="flex-1 border rounded-lg p-2 text-xs" />
+                <input type="text" placeholder="Nueva subtarea..." value={newSubtaskTitle} onChange={(e) => setNewSubtaskTitle(e.target.value)} className={`flex-1 rounded-lg p-2 text-xs border ${isDarkMode ? 'bg-[#0e0f13] border-zinc-800 text-zinc-100' : 'border-slate-200'}`} />
                 <button type="button" onClick={addSubtaskToForm} className="bg-[#f64e26] text-white px-3 rounded-lg text-xs font-bold">+</button>
               </div>
 
               <div className="space-y-1.5 max-h-28 overflow-y-auto pt-1">
                 {taskForm.subtasks.map(sub => (
-                  <div key={sub.id} className="flex items-center justify-between text-xs bg-slate-50 p-2 rounded-lg border">
+                  <div key={sub.id} className={`flex items-center justify-between text-xs p-2 rounded-lg border ${isDarkMode ? 'bg-[#13151b] border-zinc-800 text-zinc-200' : 'bg-slate-50 border-slate-200 text-slate-700'}`}>
                     <div className="flex items-center gap-2">
                       <input type="checkbox" checked={sub.completed} onChange={() => {
                         setTaskForm(prev => ({
@@ -2094,22 +2167,22 @@ export default function Dashboard() {
                           subtasks: prev.subtasks.map(s => s.id === sub.id ? { ...s, completed: !s.completed } : s)
                         }));
                       }} />
-                      <span className={sub.completed ? 'line-through text-slate-400' : 'text-slate-700'}>{sub.title}</span>
+                      <span className={sub.completed ? 'line-through text-zinc-500' : ''}>{sub.title}</span>
                     </div>
-                    <button type="button" onClick={() => removeSubtaskFromForm(sub.id)} className="text-slate-400 hover:text-red-500 text-xs">✕</button>
+                    <button type="button" onClick={() => removeSubtaskFromForm(sub.id)} className="text-zinc-500 hover:text-red-400 text-xs">✕</button>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-3 border-t">
+            <div className={`flex items-center justify-between pt-3 border-t ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
               {selectedTaskForEdit ? (
-                <button type="button" onClick={() => handleDeleteTask(selectedTaskForEdit.id)} className="px-3 py-2 bg-red-100 text-red-600 rounded-lg text-xs font-bold hover:bg-red-200">
+                <button type="button" onClick={() => handleDeleteTask(selectedTaskForEdit.id)} className="px-3 py-2 bg-red-500/10 text-red-400 rounded-lg text-xs font-bold hover:bg-red-500/20">
                   Eliminar Tarea
                 </button>
               ) : <div></div>}
               <div className="flex gap-2">
-                <button onClick={() => setShowTaskModal(false)} className="px-4 py-2 text-xs text-slate-500">Cancelar</button>
+                <button onClick={() => setShowTaskModal(false)} className="px-4 py-2 text-xs text-zinc-400">Cancelar</button>
                 <button onClick={handleSaveTaskForm} className="bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm">
                   {selectedTaskForEdit ? 'Guardar Cambios' : 'Crear Tarea'}
                 </button>
