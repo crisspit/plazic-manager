@@ -121,7 +121,6 @@ export default function Dashboard() {
   const [inputPassword, setInputPassword] = useState('');
   const SECRET_PASSWORD = "4202Plazic*";
 
-  // CLIENTES BASE
   const [clients, setClients] = useState<Client[]>([
     { 
       id: 'mitz', 
@@ -175,40 +174,28 @@ export default function Dashboard() {
   ]);
 
   const [selectedClientId, setSelectedClientId] = useState<string>('mitz');
-  const [activeTab, setActiveTab] = useState<'contenido' | 'grabacion' | 'tareas' | 'brand'>('contenido');
+  const [activeTab, setActiveTab] = useState<string>('contenido');
   const [taskViewMode, setTaskViewMode] = useState<'kanban' | 'list' | 'calendar' | 'gantt'>('kanban');
   const [calendarGridMode, setCalendarGridMode] = useState<'month' | 'week'>('month');
   const [ganttScale, setGanttScale] = useState<'days' | 'weeks'>('days');
 
-  // FILTROS RÁPIDOS
   const [networkFilter, setNetworkFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
 
   const [showArchived, setShowArchived] = useState(false);
-  const [copiedColor, setCopiedColor] = useState<string | null>(null);
+  const [currentDate, setCurrentDate] = useState(new Date(2026, 7, 10));
 
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 7, 10)); // Agosto 2026
-
-  // FORMULARIOS KIT DE MARCA
   const [newLogoName, setNewLogoName] = useState('');
   const [newLogoUrl, setNewLogoUrl] = useState('');
-  const [newColorHex, setNewColorHex] = useState('#10b981');
-  const [newColorName, setNewColorName] = useState('');
-  const [newTypoRole, setNewTypoRole] = useState('');
-  const [newTypoFont, setNewTypoFont] = useState('');
-  const [newTypoWeight, setNewTypoWeight] = useState('');
   const [newAssetTitle, setNewAssetTitle] = useState('');
   const [newAssetCategory, setNewAssetCategory] = useState('Logo');
   const [newAssetUrl, setNewAssetUrl] = useState('');
-  const [newMoodboardUrl, setNewMoodboardUrl] = useState('');
 
-  // EDITAR CLIENTE Y COTIZADOR
   const [showEditClientModal, setShowEditClientModal] = useState(false);
   const [editClientForm, setEditClientForm] = useState<Client | null>(null);
   const [showCotizadorModal, setShowCotizadorModal] = useState(false);
   const [cotizador, setCotizador] = useState({ reels: 8, fotos: 4, rodajes: 2, moderacion: true, clientName: '' });
 
-  // FORMULARIO ECONÓMICO / ABONOS
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentForm, setPaymentForm] = useState({
     monthlyFee: 0,
@@ -221,7 +208,6 @@ export default function Dashboard() {
     abonoNote: ''
   });
 
-  // MODALES PRINCIPALES
   const [selectedDateForModal, setSelectedDateForModal] = useState<string>('2026-08-10');
   const [showClientModal, setShowClientModal] = useState(false);
   const [showPostModal, setShowPostModal] = useState(false);
@@ -232,7 +218,6 @@ export default function Dashboard() {
 
   const [newClient, setNewClient] = useState({ name: '', color: '#f64e26', description: '', monthlyFee: 0, paymentDueDate: '', driveUrl: '', brandVoice: '' });
 
-  // DATOS
   const [posts, setPosts] = useState<Post[]>([
     { 
       id: 1, 
@@ -256,9 +241,9 @@ export default function Dashboard() {
       date: '2026-08-14', 
       time: '16:00', 
       location: 'Local Principal (Terraza)', 
-      script: 'Toma 1: Preparación del trago. Toma 2: Reacción del cliente.', 
-      assets: 'Aro de luz, Cámara 4K, Micrófono inalámbrico', 
-      participants: 'Cristopher (Videógrafo), Camila (Modelo), Barman',
+      script: 'Toma 1: Preparación del trago.', 
+      assets: 'Aro de luz, Cámara 4K', 
+      participants: 'Cristopher, Camila',
       status: 'Agendado'
     }
   ]);
@@ -267,8 +252,8 @@ export default function Dashboard() {
     { 
       id: 1, 
       clientId: 'mitz', 
-      title: 'Crear lista de tareas con todo lo que necesito para implementar Embudo', 
-      description: 'Extraer datos de alcance e interacción.',
+      title: 'Crear lista de tareas para Embudo', 
+      description: 'Extraer datos de alcance.',
       startDate: '2026-08-01',
       deadline: '2026-08-13', 
       priority: 'Alta', 
@@ -279,18 +264,7 @@ export default function Dashboard() {
     }
   ]);
 
-  const [newPost, setNewPost] = useState<{
-    date: string;
-    time: string;
-    networks: string[];
-    format: string;
-    topic: string;
-    copy: string;
-    assetUrl: string;
-    fileName: string;
-    status: 'Idea' | 'En producción' | 'Listo para publicar' | 'Publicado';
-    clientId: string;
-  }>({
+  const [newPost, setNewPost] = useState({
     date: '2026-08-10',
     time: '18:00',
     networks: ['Instagram'],
@@ -299,7 +273,7 @@ export default function Dashboard() {
     copy: '',
     assetUrl: '',
     fileName: '',
-    status: 'Idea',
+    status: 'Idea' as Post['status'],
     clientId: ''
   });
 
@@ -313,34 +287,22 @@ export default function Dashboard() {
     clientId: ''
   });
 
-  const [taskForm, setTaskForm] = useState<{
-    id?: number;
-    title: string;
-    description: string;
-    startDate: string;
-    deadline: string;
-    priority: 'Alta' | 'Media' | 'Baja';
-    status: 'Por Hacer' | 'En Proceso' | 'Completado';
-    assignee: string;
-    tagsInput: string;
-    clientId: string;
-    subtasks: Subtask[];
-  }>({
+  const [taskForm, setTaskForm] = useState({
+    id?: number,
     title: '',
     description: '',
     startDate: '2026-08-10',
     deadline: '2026-08-15',
-    priority: 'Media',
-    status: 'Por Hacer',
+    priority: 'Media' as Task['priority'],
+    status: 'Por Hacer' as Task['status'],
     assignee: 'Cris',
     tagsInput: '',
     clientId: '',
-    subtasks: []
+    subtasks: [] as Subtask[]
   });
 
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
 
-  // CARGA DESDE SUPABASE Y AUTENTICACIÓN
   useEffect(() => {
     const auth = sessionStorage.getItem('plazic_auth');
     if (auth === 'true') setIsAuthenticated(true);
@@ -348,19 +310,29 @@ export default function Dashboard() {
     const fetchData = async () => {
       const { data: clientsData } = await supabase.from('clients').select('*');
       if (clientsData && clientsData.length > 0) {
-setClients(clientsData.map((c: any) => c.data));
+        setClients(clientsData.map((c: any) => c.data));
       }
       
       const { data: tasksData } = await supabase.from('tasks').select('*');
       if (tasksData && tasksData.length > 0) {
-setTasks(tasksData.map((t: any) => t.data));
+        setTasks(tasksData.map((t: any) => t.data));
+      }
+
+      const { data: postsData } = await supabase.from('posts').select('*');
+      if (postsData && postsData.length > 0) {
+        setPosts(postsData.map((p: any) => p.data));
+      }
+
+      const { data: shootsData } = await supabase.from('shoots').select('*');
+      if (shootsData && shootsData.length > 0) {
+        setShoots(shootsData.map((s: any) => s.data));
       }
     };
     fetchData();
   }, []);
 
   const saveToSupabase = async (table: string, id: number | string, data: any) => {
-    await supabase.from(table).upsert({ id: id, data: data });
+    await supabase.from(table).upsert({ id: String(id), data: data });
   };
 
   const handleLogin = (e?: React.FormEvent) => {
@@ -373,7 +345,6 @@ setTasks(tasksData.map((t: any) => t.data));
     }
   };
 
-  // FILTRADOS
   const filteredClients = clients.filter(c => showArchived ? true : !c.archived);
   const activeClientObj = clients.find(c => c.id === selectedClientId);
 
@@ -405,26 +376,32 @@ setTasks(tasksData.map((t: any) => t.data));
   const totalPostsCount = rawPosts.length;
   const pautaProgress = totalPostsCount > 0 ? Math.round((publishedCount / totalPostsCount) * 100) : 0;
 
-  const togglePostPublished = (id: number) => {
+  const togglePostPublished = async (id: number) => {
+    let target: Post | undefined;
     const updated = posts.map(p => {
       if (p.id === id) {
         const newStatus: Post['status'] = p.status === 'Publicado' ? 'Idea' : 'Publicado';
-        return { ...p, status: newStatus };
+        target = { ...p, status: newStatus };
+        return target;
       }
       return p;
     });
     setPosts(updated);
+    if (target) await saveToSupabase('posts', target.id, target);
   };
 
-  const toggleShootDone = (id: number) => {
+  const toggleShootDone = async (id: number) => {
+    let target: Shoot | undefined;
     const updated = shoots.map(s => {
       if (s.id === id) {
         const newStatus = s.status === 'Realizado' ? 'Agendado' : 'Realizado';
-        return { ...s, status: newStatus as any };
+        target = { ...s, status: newStatus as any };
+        return target;
       }
       return s;
     });
     setShoots(updated);
+    if (target) await saveToSupabase('shoots', target.id, target);
   };
 
   const updateTaskStatus = async (id: number, status: Task['status']) => {
@@ -455,17 +432,19 @@ setTasks(tasksData.map((t: any) => t.data));
     }
   };
 
-  const handleSavePost = () => {
+  const handleSavePost = async () => {
     const item: Post = { ...newPost, id: Date.now(), clientId: newPost.clientId || selectedClientId };
     const updated = [...posts, item];
     setPosts(updated);
+    await saveToSupabase('posts', item.id, item);
     setShowPostModal(false);
   };
 
-  const handleSaveShoot = () => {
+  const handleSaveShoot = async () => {
     const item: Shoot = { ...newShoot, id: Date.now(), clientId: newShoot.clientId || selectedClientId };
     const updated = [...shoots, item];
     setShoots(updated);
+    await saveToSupabase('shoots', item.id, item);
     setShowShootModal(false);
   };
 
@@ -570,9 +549,10 @@ setTasks(tasksData.map((t: any) => t.data));
     }
   };
 
-  const handleDuplicatePost = (p: Post) => {
+  const handleDuplicatePost = async (p: Post) => {
     const dup: Post = { ...p, id: Date.now(), topic: `${p.topic} (Copia)` };
     setPosts([...posts, dup]);
+    await saveToSupabase('posts', dup.id, dup);
   };
 
   const handleDuplicateTask = async (t: Task) => {
@@ -837,7 +817,7 @@ setTasks(tasksData.map((t: any) => t.data));
     const date = new Date(year, month, 1);
     const days = [];
     const firstDayIndex = date.getDay();
-    
+     
     const prevMonthLastDate = new Date(year, month, 0).getDate();
     for (let i = firstDayIndex - 1; i >= 0; i--) {
       days.push({ day: prevMonthLastDate - i, isCurrentMonth: false, fullDate: '' });
@@ -2131,61 +2111,6 @@ setTasks(tasksData.map((t: any) => t.data));
             <div className="flex gap-2 justify-end pt-3 border-t">
               <button onClick={() => setShowTaskModal(false)} className="px-4 py-2 text-xs text-slate-500">Cancelar</button>
               <button onClick={handleSaveTaskForm} className="bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm">{selectedTaskForEdit ? 'Guardar Cambios' : 'Crear Tarea'}</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showClientModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className={`border w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto ${bgTaskCard}`}>
-            <div className="flex items-center justify-between border-b pb-3">
-              <h3 className={`text-base font-bold ${textTitle}`}>Nuevo Cliente / Proyecto</h3>
-              <button onClick={() => setShowClientModal(false)}><X size={18} className="text-zinc-400" /></button>
-            </div>
-
-            <div>
-              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Nombre del Cliente / Marca (*)</label>
-              <input type="text" placeholder="Ej: Mitz Bar Lounge, Aloha Chic" value={newClient.name} onChange={(e) => setNewClient({...newClient, name: e.target.value})} className="w-full border rounded-lg p-2.5 text-xs font-bold" />
-            </div>
-
-            <div>
-              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Color Identificatorio de Marca</label>
-              <div className="flex items-center gap-3">
-                <input type="color" value={newClient.color} onChange={(e) => setNewClient({...newClient, color: e.target.value})} className="w-10 h-10 rounded-xl bg-transparent border-0 cursor-pointer" />
-                <span className="text-xs font-mono font-bold text-slate-700">{newClient.color}</span>
-              </div>
-            </div>
-
-            <div>
-              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Descripción / Rubro del Cliente</label>
-              <textarea placeholder="Síntesis del servicio o tipo de contrato..." value={newClient.description} onChange={(e) => setNewClient({...newClient, description: e.target.value})} className="w-full border rounded-lg p-2 text-xs h-16"></textarea>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-[10px] text-slate-500 block mb-1 font-bold">Valor Mensualidad ($)</label>
-                <input type="number" placeholder="Ej: 450000" value={newClient.monthlyFee || ''} onChange={(e) => setNewClient({...newClient, monthlyFee: Number(e.target.value)})} className="w-full border rounded-lg p-2 text-xs" />
-              </div>
-              <div>
-                <label className="text-[10px] text-slate-500 block mb-1 font-bold">Día de Cobro Pactado</label>
-                <input type="text" placeholder="Ej: 05 de cada mes" value={newClient.paymentDueDate} onChange={(e) => setNewClient({...newClient, paymentDueDate: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Link a Carpeta Google Drive / Nube</label>
-              <input type="url" placeholder="https://drive.google.com/..." value={newClient.driveUrl} onChange={(e) => setNewClient({...newClient, driveUrl: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
-            </div>
-
-            <div>
-              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Tono de Voz / Pautas de Comunicación</label>
-              <input type="text" placeholder="Ej: Juvenil, festivo, dinámico y muy visual" value={newClient.brandVoice} onChange={(e) => setNewClient({...newClient, brandVoice: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
-            </div>
-
-            <div className="flex gap-2 justify-end pt-3 border-t">
-              <button onClick={() => setShowClientModal(false)} className="px-4 py-2 text-xs text-slate-500">Cancelar</button>
-              <button onClick={handleCreateClientFull} className="bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm">Crear Cliente</button>
             </div>
           </div>
         </div>
