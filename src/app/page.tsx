@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '../../lib/supabase';
 import { 
   Calendar as CalendarIcon, Video, CheckSquare, Plus, MapPin, 
   UserPlus, CheckCircle, Circle, MoreVertical, Building2, ChevronLeft, 
@@ -348,12 +348,12 @@ export default function Dashboard() {
     const fetchData = async () => {
       const { data: clientsData } = await supabase.from('clients').select('*');
       if (clientsData && clientsData.length > 0) {
-        setClients(clientsData.map(c => c.data));
+setClients(clientsData.map((c: any) => c.data));
       }
       
       const { data: tasksData } = await supabase.from('tasks').select('*');
       if (tasksData && tasksData.length > 0) {
-        setTasks(tasksData.map(t => t.data));
+setTasks(tasksData.map((t: any) => t.data));
       }
     };
     fetchData();
