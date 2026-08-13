@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { 
   Calendar as CalendarIcon, Video, CheckSquare, Plus, MapPin, 
   UserPlus, CheckCircle, Circle, MoreVertical, Building2, ChevronLeft, 
@@ -9,7 +10,7 @@ import {
   Clock, Tag, User, AlignLeft, CheckSquare as SubtaskIcon, BarChart3, X,
   Link as LinkIcon, Paperclip, Type, Folder, Image as ImageIcon,
   ShieldCheck, ShieldAlert, Layers, Download, Search, Share2, Grid, Upload, Trash2, Settings,
-  Zap, Copy, Calculator, Filter, TrendingUp, ChevronDown
+  Zap, Copy, Calculator, Filter, TrendingUp, ChevronDown, Lock, LogIn
 } from 'lucide-react';
 
 interface ColorItem {
@@ -116,6 +117,9 @@ interface Shoot {
 
 export default function Dashboard() {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [inputPassword, setInputPassword] = useState('');
+  const SECRET_PASSWORD = "4202Plazic*";
 
   // CLIENTES BASE
   const [clients, setClients] = useState<Client[]>([
@@ -336,19 +340,38 @@ export default function Dashboard() {
 
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
 
+  // CARGA DESDE SUPABASE Y AUTENTICACIÓN
   useEffect(() => {
-    const sClients = localStorage.getItem('plazic_clients');
-    const sPosts = localStorage.getItem('plazic_posts');
-    const sShoots = localStorage.getItem('plazic_shoots');
-    const sTasks = localStorage.getItem('plazic_tasks');
+    const auth = sessionStorage.getItem('plazic_auth');
+    if (auth === 'true') setIsAuthenticated(true);
 
-    if (sClients) setClients(JSON.parse(sClients));
-    if (sPosts) setPosts(JSON.parse(sPosts));
-    if (sShoots) setShoots(JSON.parse(sShoots));
-    if (sTasks) setTasks(JSON.parse(sTasks));
+    const fetchData = async () => {
+      const { data: clientsData } = await supabase.from('clients').select('*');
+      if (clientsData && clientsData.length > 0) {
+        setClients(clientsData.map(c => c.data));
+      }
+      
+      const { data: tasksData } = await supabase.from('tasks').select('*');
+      if (tasksData && tasksData.length > 0) {
+        setTasks(tasksData.map(t => t.data));
+      }
+    };
+    fetchData();
   }, []);
 
-  const saveStorage = (key: string, data: any) => localStorage.setItem(key, JSON.stringify(data));
+  const saveToSupabase = async (table: string, id: number | string, data: any) => {
+    await supabase.from(table).upsert({ id: id, data: data });
+  };
+
+  const handleLogin = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (inputPassword === SECRET_PASSWORD) {
+      sessionStorage.setItem('plazic_auth', 'true');
+      setIsAuthenticated(true);
+    } else {
+      alert("Contraseña incorrecta, compadre.");
+    }
+  };
 
   // FILTRADOS
   const filteredClients = clients.filter(c => showArchived ? true : !c.archived);
@@ -382,7 +405,6 @@ export default function Dashboard() {
   const totalPostsCount = rawPosts.length;
   const pautaProgress = totalPostsCount > 0 ? Math.round((publishedCount / totalPostsCount) * 100) : 0;
 
-  // TICKER DE PUBLICADO Y RODAJE
   const togglePostPublished = (id: number) => {
     const updated = posts.map(p => {
       if (p.id === id) {
@@ -392,7 +414,6 @@ export default function Dashboard() {
       return p;
     });
     setPosts(updated);
-    saveStorage('plazic_posts', updated);
   };
 
   const toggleShootDone = (id: number) => {
@@ -404,14 +425,13 @@ export default function Dashboard() {
       return s;
     });
     setShoots(updated);
-    saveStorage('plazic_shoots', updated);
   };
 
-  // TAREAS Y SUBTAREAS
-  const updateTaskStatus = (id: number, status: Task['status']) => {
+  const updateTaskStatus = async (id: number, status: Task['status']) => {
     const updated = tasks.map(t => t.id === id ? { ...t, status } : t);
     setTasks(updated);
-    saveStorage('plazic_tasks', updated);
+    const target = updated.find(t => t.id === id);
+    if (target) await saveToSupabase('tasks', target.id, target);
   };
 
   const addSubtaskToForm = () => {
@@ -439,7 +459,6 @@ export default function Dashboard() {
     const item: Post = { ...newPost, id: Date.now(), clientId: newPost.clientId || selectedClientId };
     const updated = [...posts, item];
     setPosts(updated);
-    saveStorage('plazic_posts', updated);
     setShowPostModal(false);
   };
 
@@ -447,17 +466,18 @@ export default function Dashboard() {
     const item: Shoot = { ...newShoot, id: Date.now(), clientId: newShoot.clientId || selectedClientId };
     const updated = [...shoots, item];
     setShoots(updated);
-    saveStorage('plazic_shoots', updated);
     setShowShootModal(false);
   };
 
-  const handleSaveTaskForm = () => {
+  const handleSaveTaskForm = async () => {
     if (!taskForm.title.trim()) return;
-
     const parsedTags = taskForm.tagsInput.split(',').map(t => t.trim()).filter(t => t.length > 0);
 
+    let updatedTasks = [...tasks];
+    let savedTask: Task;
+
     if (selectedTaskForEdit) {
-      const updated = tasks.map(t => t.id === selectedTaskForEdit.id ? {
+      updatedTasks = tasks.map(t => t.id === selectedTaskForEdit.id ? {
         ...t,
         title: taskForm.title,
         description: taskForm.description,
@@ -470,10 +490,9 @@ export default function Dashboard() {
         subtasks: taskForm.subtasks,
         clientId: taskForm.clientId
       } : t);
-      setTasks(updated);
-      saveStorage('plazic_tasks', updated);
+      savedTask = updatedTasks.find(t => t.id === selectedTaskForEdit.id)!;
     } else {
-      const newTaskObj: Task = {
+      savedTask = {
         id: Date.now(),
         clientId: taskForm.clientId || (selectedClientId === 'all' ? clients[0]?.id : selectedClientId),
         title: taskForm.title,
@@ -486,10 +505,11 @@ export default function Dashboard() {
         tags: parsedTags,
         subtasks: taskForm.subtasks
       };
-      const updated = [...tasks, newTaskObj];
-      setTasks(updated);
-      saveStorage('plazic_tasks', updated);
+      updatedTasks = [...tasks, savedTask];
     }
+
+    setTasks(updatedTasks);
+    await saveToSupabase('tasks', savedTask.id, savedTask);
     setShowTaskModal(false);
   };
 
@@ -502,7 +522,7 @@ export default function Dashboard() {
 
   const calculatedFee = (cotizador.reels * 25000) + (cotizador.fotos * 12000) + (cotizador.rodajes * 80000) + (cotizador.moderacion ? 50000 : 0);
 
-  const handleCreateClientFromCotizador = () => {
+  const handleCreateClientFromCotizador = async () => {
     if (!cotizador.clientName.trim()) return;
     const newC: Client = {
       id: Date.now().toString(),
@@ -516,7 +536,7 @@ export default function Dashboard() {
     };
     const updated = [...clients, newC];
     setClients(updated);
-    saveStorage('plazic_clients', updated);
+    await saveToSupabase('clients', newC.id, newC);
     setSelectedClientId(newC.id);
     setShowCotizadorModal(false);
     setCotizador({ reels: 8, fotos: 4, rodajes: 2, moderacion: true, clientName: '' });
@@ -552,16 +572,13 @@ export default function Dashboard() {
 
   const handleDuplicatePost = (p: Post) => {
     const dup: Post = { ...p, id: Date.now(), topic: `${p.topic} (Copia)` };
-    const updated = [...posts, dup];
-    setPosts(updated);
-    saveStorage('plazic_posts', updated);
+    setPosts([...posts, dup]);
   };
 
-  const handleDuplicateTask = (t: Task) => {
+  const handleDuplicateTask = async (t: Task) => {
     const dup: Task = { ...t, id: Date.now(), title: `${t.title} (Copia)` };
-    const updated = [...tasks, dup];
-    setTasks(updated);
-    saveStorage('plazic_tasks', updated);
+    setTasks([...tasks, dup]);
+    await saveToSupabase('tasks', dup.id, dup);
   };
 
   const openAddModalForDate = (dateStr: string) => {
@@ -586,15 +603,15 @@ export default function Dashboard() {
     setShowEditClientModal(true);
   };
 
-  const handleSaveEditedClient = () => {
+  const handleSaveEditedClient = async () => {
     if (!editClientForm) return;
     const updatedClients = clients.map(c => c.id === editClientForm.id ? editClientForm : c);
     setClients(updatedClients);
-    saveStorage('plazic_clients', updatedClients);
+    await saveToSupabase('clients', editClientForm.id, editClientForm);
     setShowEditClientModal(false);
   };
 
-  const handleCreateClientFull = () => {
+  const handleCreateClientFull = async () => {
     if (!newClient.name.trim()) return;
     const clientObj: Client = {
       id: Date.now().toString(),
@@ -611,28 +628,28 @@ export default function Dashboard() {
     };
     const updated = [...clients, clientObj];
     setClients(updated);
-    saveStorage('plazic_clients', updated);
+    await saveToSupabase('clients', clientObj.id, clientObj);
     setSelectedClientId(clientObj.id);
     setNewClient({ name: '', color: '#f64e26', description: '', monthlyFee: 0, paymentDueDate: '', driveUrl: '', brandVoice: '' });
     setShowClientModal(false);
   };
 
-  const handleDeleteClient = (id: string) => {
+  const handleDeleteClient = async (id: string) => {
     const updatedClients = clients.filter(c => c.id !== id);
     setClients(updatedClients);
-    saveStorage('plazic_clients', updatedClients);
+    await supabase.from('clients').delete().eq('id', id);
     setSelectedClientId(updatedClients[0]?.id || 'all');
     setShowEditClientModal(false);
   };
 
-  const handleToggleArchiveClient = (id: string) => {
+  const handleToggleArchiveClient = async (id: string) => {
     const updatedClients = clients.map(c => c.id === id ? { ...c, archived: !c.archived } : c);
     setClients(updatedClients);
-    saveStorage('plazic_clients', updatedClients);
+    const target = updatedClients.find(c => c.id === id);
+    if (target) await saveToSupabase('clients', target.id, target);
     setShowEditClientModal(false);
   };
 
-  // REGISTRO DE PAGOS Y ABONOS
   const openPaymentModal = () => {
     if (!activeClientObj) return;
     setPaymentForm({
@@ -648,7 +665,7 @@ export default function Dashboard() {
     setShowPaymentModal(true);
   };
 
-  const handleSavePaymentInfo = () => {
+  const handleSavePaymentInfo = async () => {
     if (!activeClientObj) return;
 
     let updatedAbonos = activeClientObj.abonos || [];
@@ -665,8 +682,8 @@ export default function Dashboard() {
       ];
     }
 
-    const updatedClients = clients.map(c => c.id === activeClientObj.id ? {
-      ...c,
+    const updatedClient = {
+      ...activeClientObj,
       monthlyFee: Number(paymentForm.monthlyFee),
       paymentDueDate: paymentForm.paymentDueDate,
       nextPaymentDate: paymentForm.nextPaymentDate,
@@ -674,10 +691,11 @@ export default function Dashboard() {
       paymentMethod: paymentForm.paymentMethod,
       paymentStatus: paymentForm.paymentStatus,
       abonos: updatedAbonos
-    } : c);
+    };
 
+    const updatedClients = clients.map(c => c.id === activeClientObj.id ? updatedClient : c);
     setClients(updatedClients);
-    saveStorage('plazic_clients', updatedClients);
+    await saveToSupabase('clients', updatedClient.id, updatedClient);
     setShowPaymentModal(false);
   };
 
@@ -717,7 +735,6 @@ export default function Dashboard() {
     setShowTaskModal(true);
   };
 
-  // ARCHIVOS LOCALES EN BASE64
   const handleLogoFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -742,7 +759,7 @@ export default function Dashboard() {
     }
   };
 
-  const handleAddLogoToBrand = () => {
+  const handleAddLogoToBrand = async () => {
     if (!activeClientObj || (!newLogoName.trim() && !newLogoUrl)) return;
     const newLogo: LogoItem = {
       id: Date.now(),
@@ -750,39 +767,24 @@ export default function Dashboard() {
       imageUrl: newLogoUrl || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop'
     };
     const updatedLogos = [...(activeClientObj.logos || []), newLogo];
-    const updatedClients = clients.map(c => c.id === activeClientObj.id ? { ...c, logos: updatedLogos } : c);
+    const updatedClient = { ...activeClientObj, logos: updatedLogos };
+    const updatedClients = clients.map(c => c.id === activeClientObj.id ? updatedClient : c);
     setClients(updatedClients);
-    saveStorage('plazic_clients', updatedClients);
+    await saveToSupabase('clients', updatedClient.id, updatedClient);
     setNewLogoName('');
     setNewLogoUrl('');
   };
 
-  const handleDeleteLogo = (logoId: number) => {
+  const handleDeleteLogo = async (logoId: number) => {
     if (!activeClientObj) return;
     const updatedLogos = activeClientObj.logos?.filter(l => l.id !== logoId);
-    const updatedClients = clients.map(c => c.id === activeClientObj.id ? { ...c, logos: updatedLogos } : c);
+    const updatedClient = { ...activeClientObj, logos: updatedLogos };
+    const updatedClients = clients.map(c => c.id === activeClientObj.id ? updatedClient : c);
     setClients(updatedClients);
-    saveStorage('plazic_clients', updatedClients);
+    await saveToSupabase('clients', updatedClient.id, updatedClient);
   };
 
-  const handleAddColorToBrand = () => {
-    if (!activeClientObj || !newColorName.trim()) return;
-    const updatedColors = [...(activeClientObj.colors || []), { hex: newColorHex, name: newColorName.trim() }];
-    const updatedClients = clients.map(c => c.id === activeClientObj.id ? { ...c, colors: updatedColors } : c);
-    setClients(updatedClients);
-    saveStorage('plazic_clients', updatedClients);
-    setNewColorName('');
-  };
-
-  const handleDeleteColor = (hex: string) => {
-    if (!activeClientObj) return;
-    const updatedColors = activeClientObj.colors?.filter(c => c.hex !== hex);
-    const updatedClients = clients.map(c => c.id === activeClientObj.id ? { ...c, colors: updatedColors } : c);
-    setClients(updatedClients);
-    saveStorage('plazic_clients', updatedClients);
-  };
-
-  const handleAddAssetToBrand = () => {
+  const handleAddAssetToBrand = async () => {
     if (!activeClientObj || (!newAssetTitle.trim() && !newAssetUrl)) return;
     const newAsset: BrandAsset = {
       id: Date.now(),
@@ -791,22 +793,23 @@ export default function Dashboard() {
       url: newAssetUrl.trim() || 'https://drive.google.com'
     };
     const updatedAssets = [...(activeClientObj.brandAssets || []), newAsset];
-    const updatedClients = clients.map(c => c.id === activeClientObj.id ? { ...c, brandAssets: updatedAssets } : c);
+    const updatedClient = { ...activeClientObj, brandAssets: updatedAssets };
+    const updatedClients = clients.map(c => c.id === activeClientObj.id ? updatedClient : c);
     setClients(updatedClients);
-    saveStorage('plazic_clients', updatedClients);
+    await saveToSupabase('clients', updatedClient.id, updatedClient);
     setNewAssetTitle('');
     setNewAssetUrl('');
   };
 
-  const handleDeleteAsset = (assetId: number) => {
+  const handleDeleteAsset = async (assetId: number) => {
     if (!activeClientObj) return;
     const updatedAssets = activeClientObj.brandAssets?.filter(a => a.id !== assetId);
-    const updatedClients = clients.map(c => c.id === activeClientObj.id ? { ...c, brandAssets: updatedAssets } : c);
+    const updatedClient = { ...activeClientObj, brandAssets: updatedAssets };
+    const updatedClients = clients.map(c => c.id === activeClientObj.id ? updatedClient : c);
     setClients(updatedClients);
-    saveStorage('plazic_clients', updatedClients);
+    await saveToSupabase('clients', updatedClient.id, updatedClient);
   };
 
-  // DRAG & DROP
   const handleDragStart = (e: React.DragEvent, id: number) => {
     setDraggedTaskId(id);
     e.dataTransfer.setData('text/plain', id.toString());
@@ -824,7 +827,6 @@ export default function Dashboard() {
     }
   };
 
-  // CÁLCULO FECHAS
   const getDayInitial = (year: number, month: number, dayNum: number) => {
     const dayOfWeek = new Date(year, month, dayNum).getDay();
     const initials = ['D', 'L', 'M', 'Mi', 'J', 'V', 'S'];
@@ -880,7 +882,6 @@ export default function Dashboard() {
 
   const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
-  // CLASES ESTILO ASANA CON BORDES SUAVES Y MINIMALISTAS
   const bgSidebar = isDarkMode ? 'bg-[#121215] border-zinc-800/40' : 'bg-[#2b2d31] border-zinc-800/40 text-zinc-300';
   const bgMainContent = isDarkMode ? 'bg-[#09090b] text-zinc-200' : 'bg-[#ffffff] text-slate-800';
   const bgHeader = isDarkMode ? 'bg-[#09090b] border-zinc-800/40' : 'bg-white border-slate-200/60';
@@ -891,10 +892,37 @@ export default function Dashboard() {
 
   const availableNetworks = ['Instagram', 'TikTok', 'YouTube', 'Facebook', 'LinkedIn'];
 
+  if (!isAuthenticated) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-[#09090b] text-white p-4">
+        <form onSubmit={handleLogin} className="w-full max-w-sm bg-[#1e1f21] p-8 rounded-2xl border border-zinc-800 shadow-2xl space-y-6 text-center">
+          <div className="w-16 h-16 bg-[#f64e26] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/20">
+            <Lock className="text-white" size={30} />
+          </div>
+          <h1 className="text-xl font-black tracking-tight">Plazic Business Manager</h1>
+          <p className="text-xs text-zinc-400">Ingresa tu contraseña para acceder al sistema.</p>
+          <input 
+            type="password" 
+            placeholder="Contraseña de acceso" 
+            value={inputPassword}
+            onChange={(e) => setInputPassword(e.target.value)}
+            className="w-full bg-[#2b2d31] border border-zinc-700 rounded-lg p-3 text-sm focus:outline-none focus:border-[#f64e26] text-white text-center font-bold tracking-widest"
+            autoFocus
+          />
+          <button 
+            type="submit"
+            className="w-full bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold py-3 rounded-lg text-sm shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+          >
+            <LogIn size={16} /> Entrar al Sistema
+          </button>
+        </form>
+      </div>
+    );
+  }
+
   return (
     <div className={`flex flex-col h-screen font-sans antialiased overflow-hidden selection:bg-[#f64e26] selection:text-white ${bgMainContent}`}>
       
-      {/* IMPRESIÓN PDF */}
       <style jsx global>{`
         @media print {
           header, aside, nav, button, .no-print, .modal, #screen-app {
@@ -942,7 +970,7 @@ export default function Dashboard() {
         }
       `}</style>
 
-      {/* PLANTILLA DE INFORME EJECUTIVO PARA PDF */}
+      {/* INFORME PDF */}
       <div className="print-report">
         <div className="flex items-center justify-between border-b-2 border-[#f64e26] pb-4 mb-6">
           <div>
@@ -1031,7 +1059,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* 1. BARRA SUPERIOR OSURA ASANA */}
+      {/* HEADER */}
       <header className="h-12 bg-[#1e1f21] border-b border-zinc-800/80 px-4 flex items-center justify-between z-30 text-white shrink-0 no-print">
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 rounded-lg bg-[#f64e26] flex items-center justify-center font-black text-white text-xs shadow-md">
@@ -1072,7 +1100,7 @@ export default function Dashboard() {
       {/* CONTENEDOR PRINCIPAL */}
       <div id="screen-app" className="flex flex-1 overflow-hidden">
         
-        {/* 2. BARRA LATERAL (SIDEBAR) */}
+        {/* SIDEBAR */}
         <aside className={`w-56 border-r flex flex-col p-3 shrink-0 no-print ${bgSidebar}`}>
           <button
             onClick={() => setSelectedClientId('all')}
@@ -1120,7 +1148,6 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {/* COTIZADOR REUBICADO ELEGANTE JUSTO DEBAJO DE CLIENTES */}
           <div className="pt-3 border-t border-zinc-700/40 mt-4 mb-2">
             <button 
               onClick={() => setShowCotizadorModal(true)}
@@ -1132,10 +1159,9 @@ export default function Dashboard() {
           </div>
         </aside>
 
-        {/* 3. ÁREA DE TRABAJO */}
+        {/* ÁREA DE TRABAJO */}
         <main className="flex-1 flex flex-col overflow-hidden">
           
-          {/* ENCABEZADO */}
           <header className={`border-b px-8 pt-4 pb-3 flex items-center justify-between no-print ${bgHeader}`}>
             <div>
               <span className="text-[10px] font-bold tracking-wider text-zinc-400 uppercase">
@@ -1173,7 +1199,6 @@ export default function Dashboard() {
             </div>
           </header>
 
-          {/* NAV PESTAÑAS */}
           <div className="px-8 pt-3 bg-white border-b border-slate-200/60 flex items-center justify-between no-print">
             <div className="flex items-center gap-6">
               <button
@@ -1219,7 +1244,6 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* FILTROS MINIMALISTAS SÚTILES (SOLUCIÓN FOTO 2) */}
             {activeTab === 'tareas' && (
               <div className="flex items-center gap-3 mb-2">
                 <div className="relative flex items-center">
@@ -1278,7 +1302,6 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* DASHBOARD KPIS AGENCIA */}
           {selectedClientId === 'all' && (
             <div className="px-8 py-4 bg-[#f1f2f4] border-b grid grid-cols-4 gap-4 no-print">
               <div className="bg-white p-3.5 rounded-xl border border-slate-200/60 shadow-sm flex items-center justify-between">
@@ -1315,12 +1338,10 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* CONTENIDO INTERNO */}
           <div className="flex-1 flex overflow-hidden p-6 gap-6 bg-[#f9f9fb]">
             
             <div className="flex-1 flex flex-col min-w-0">
 
-              {/* CALENDARIOS (SOLUCIÓN FOTO 1 - TOGGLE MES | SEMANA CON BORDE SUAVE) */}
               {(activeTab === 'contenido' || activeTab === 'grabacion' || (activeTab === 'tareas' && taskViewMode === 'calendar')) && (
                 <div className="flex-1 flex flex-col min-h-0">
                   <div className={`flex items-center justify-between mb-3 p-3 rounded-xl border border-slate-200/60 no-print ${bgTaskCard}`}>
@@ -1445,7 +1466,7 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {/* KANBAN EXACTO ASANA */}
+              {/* KANBAN */}
               {activeTab === 'tareas' && taskViewMode === 'kanban' && (
                 <div className="grid grid-cols-3 gap-6 flex-1 overflow-x-auto overflow-y-hidden">
                   {(['Por Hacer', 'En Proceso', 'Completado'] as const).map(columnStatus => {
@@ -1505,7 +1526,7 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {/* LISTA DE TAREAS */}
+              {/* LISTA */}
               {activeTab === 'tareas' && taskViewMode === 'list' && (
                 <div className={`flex-1 flex flex-col min-h-0 rounded-2xl border border-slate-200/60 p-6 space-y-6 overflow-y-auto ${bgTaskCard}`}>
                   {(['Por Hacer', 'En Proceso', 'Completado'] as const).map(groupStatus => {
@@ -1525,7 +1546,7 @@ export default function Dashboard() {
 
                         <div className="space-y-2">
                           {groupTasks.length === 0 ? (
-                            <div className="text-xs text-slate-400 italic py-2 px-2 bg-slate-50 rounded-lg border border-slate-100">
+                            <div className="text-xs text-slate-400 italic py-2 px-2 bg-slate-50 rounded-lg border">
                               Sin tareas en esta etapa. <button onClick={() => openTaskModal(undefined, groupStatus)} className="text-[#f64e26] font-bold hover:underline">Clic aquí para agregar una.</button>
                             </div>
                           ) : (
@@ -1557,7 +1578,7 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {/* CARTA GANTT LIMPIA ASANA (SOLUCIÓN FOTO 3 - GRILLA TRANSPARENTE Y PÍLDORAS CON AVATAR) */}
+              {/* GANTT */}
               {activeTab === 'tareas' && taskViewMode === 'gantt' && (
                 <div className={`flex-1 flex flex-col min-h-0 rounded-2xl border border-slate-200/60 p-5 overflow-hidden ${bgTaskCard}`}>
                   <div className="flex items-center justify-between mb-4 border-b pb-3">
@@ -1570,7 +1591,6 @@ export default function Dashboard() {
 
                   <div className="flex-1 overflow-x-auto overflow-y-auto">
                     <div className="min-w-[950px] flex flex-col">
-                      
                       <div className="flex border-b border-slate-200/60 text-[10px] font-bold text-slate-500 pb-2 mb-3 py-2 bg-slate-50/50 rounded-lg">
                         <div className="w-64 shrink-0 px-3 flex items-center gap-2"><Layers size={13} /> TAREA / ETAPA</div>
                         <div className="flex-1 grid grid-cols-31 text-center border-l border-slate-200/60">
@@ -1608,11 +1628,11 @@ export default function Dashboard() {
                                     <div className="w-64 shrink-0 pr-3 truncate">
                                       <span className="font-bold block text-slate-800 truncate">{task.title}</span>
                                     </div>
-                                    <div className="flex-1 relative h-9 bg-slate-50/60 rounded-xl overflow-hidden flex items-center border border-slate-100">
+                                    <div className="flex-1 relative h-9 bg-slate-50 rounded-xl overflow-hidden flex items-center border border-slate-100">
                                       <div className="absolute top-0 bottom-0 w-0.5 bg-blue-500 z-10" style={{ left: `${(9 / 31) * 100}%` }}></div>
                                       
                                       <div 
-                                        className="absolute h-7 rounded-xl text-[10px] font-bold text-slate-800 bg-white border border-slate-200/80 shadow-sm px-2 flex items-center gap-2 shadow-sm transition-all truncate" 
+                                        className="absolute h-7 rounded-xl text-[10px] font-bold text-slate-800 bg-white border border-slate-200/80 shadow-sm px-2 flex items-center gap-2 transition-all truncate" 
                                         style={{ left: `${((startDay - 1) / 31) * 100}%`, width: `${Math.max(12, ((endDay - startDay + 1) / 31) * 100)}%` }}
                                       >
                                         <div className="w-5 h-5 rounded-full bg-slate-300 font-black text-[9px] text-slate-800 flex items-center justify-center shrink-0">
@@ -1633,7 +1653,7 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {/* KIT DE MARCA CON BORDES SUAVES */}
+              {/* KIT DE MARCA */}
               {activeTab === 'brand' && activeClientObj && (
                 <div className={`flex-1 rounded-2xl border border-slate-200/60 p-6 space-y-8 overflow-y-auto ${bgTaskCard}`}>
                   <div className="flex items-center justify-between border-b pb-4">
@@ -1642,14 +1662,13 @@ export default function Dashboard() {
                       <p className="text-xs text-slate-500 mt-1">{activeClientObj.description}</p>
                     </div>
                     {activeClientObj.driveUrl && (
-                      <a href={activeClientObj.driveUrl} target="_blank" rel="noreferrer" className="bg-[#f64e26] text-white px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm">
+                      <a href={activeClientObj.driveUrl} target="_blank" rel="noreferrer" className="bg-[#f64e26] text-white px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow">
                         <ExternalLink size={15} />
                         <span>Abrir Nube / Drive</span>
                       </a>
                     )}
                   </div>
 
-                  {/* LOGOS */}
                   <div className="space-y-4">
                     <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
                       <ImageIcon size={15} className="text-[#f64e26]" /> Logotipos de Marca
@@ -1681,7 +1700,6 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  {/* BANCO DE RECURSOS CON BORDES DE INPUTS SUAVES (SOLUCIÓN FOTO 3) */}
                   <div className="space-y-4 border-t pt-6">
                     <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
                       <Folder size={15} className="text-[#f64e26]" /> Banco de Recursos y Archivos de Marca
@@ -1727,7 +1745,7 @@ export default function Dashboard() {
 
             </div>
 
-            {/* COLUMNA DERECHA FINANZAS Y RODAJES (SOLUCIÓN FOTO 2 - BORDE TARJETA RODAJES SUAVE) */}
+            {/* COLUMNA DERECHA */}
             <div className="w-80 flex flex-col gap-5 no-print">
               <div className={`rounded-2xl border border-slate-200/60 p-4 ${bgTaskCard}`}>
                 <div className="flex items-center justify-between mb-3">
@@ -1789,7 +1807,7 @@ export default function Dashboard() {
 
       </div>
 
-      {/* MODAL COTIZADOR DE FEE */}
+      {/* MODALES */}
       {showCotizadorModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className={`border w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 ${bgTaskCard}`}>
@@ -1826,18 +1844,17 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* MODAL NUEVO CLIENTE */}
       {showClientModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className={`border w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto ${bgTaskCard}`}>
             <div className="flex items-center justify-between border-b pb-3">
               <h3 className={`text-base font-bold ${textTitle}`}>Nuevo Cliente / Proyecto</h3>
-              <button onClick={() => setShowClientModal(false)}><X size={18} className="text-slate-400" /></button>
+              <button onClick={() => setShowClientModal(false)}><X size={18} className="text-zinc-400" /></button>
             </div>
 
             <div>
               <label className="text-[10px] text-slate-500 block mb-1 font-bold">Nombre del Cliente / Marca (*)</label>
-              <input type="text" placeholder="Ej: Mitz Bar Lounge, Aloha Chic" value={newClient.name} onChange={(e) => setNewClient({...newClient, name: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2.5 text-xs font-bold" />
+              <input type="text" placeholder="Ej: Mitz Bar Lounge, Aloha Chic" value={newClient.name} onChange={(e) => setNewClient({...newClient, name: e.target.value})} className="w-full border rounded-lg p-2.5 text-xs font-bold" />
             </div>
 
             <div>
@@ -1850,28 +1867,28 @@ export default function Dashboard() {
 
             <div>
               <label className="text-[10px] text-slate-500 block mb-1 font-bold">Descripción / Rubro del Cliente</label>
-              <textarea placeholder="Síntesis del servicio o tipo de contrato..." value={newClient.description} onChange={(e) => setNewClient({...newClient, description: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs h-16"></textarea>
+              <textarea placeholder="Síntesis del servicio o tipo de contrato..." value={newClient.description} onChange={(e) => setNewClient({...newClient, description: e.target.value})} className="w-full border rounded-lg p-2 text-xs h-16"></textarea>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-[10px] text-slate-500 block mb-1 font-bold">Valor Mensualidad ($)</label>
-                <input type="number" placeholder="Ej: 450000" value={newClient.monthlyFee || ''} onChange={(e) => setNewClient({...newClient, monthlyFee: Number(e.target.value)})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" />
+                <input type="number" placeholder="Ej: 450000" value={newClient.monthlyFee || ''} onChange={(e) => setNewClient({...newClient, monthlyFee: Number(e.target.value)})} className="w-full border rounded-lg p-2 text-xs" />
               </div>
               <div>
                 <label className="text-[10px] text-slate-500 block mb-1 font-bold">Día de Cobro Pactado</label>
-                <input type="text" placeholder="Ej: 05 de cada mes" value={newClient.paymentDueDate} onChange={(e) => setNewClient({...newClient, paymentDueDate: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" />
+                <input type="text" placeholder="Ej: 05 de cada mes" value={newClient.paymentDueDate} onChange={(e) => setNewClient({...newClient, paymentDueDate: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
               </div>
             </div>
 
             <div>
               <label className="text-[10px] text-slate-500 block mb-1 font-bold">Link a Carpeta Google Drive / Nube</label>
-              <input type="url" placeholder="https://drive.google.com/..." value={newClient.driveUrl} onChange={(e) => setNewClient({...newClient, driveUrl: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" />
+              <input type="url" placeholder="https://drive.google.com/..." value={newClient.driveUrl} onChange={(e) => setNewClient({...newClient, driveUrl: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
             </div>
 
             <div>
               <label className="text-[10px] text-slate-500 block mb-1 font-bold">Tono de Voz / Pautas de Comunicación</label>
-              <input type="text" placeholder="Ej: Juvenil, festivo, dinámico y muy visual" value={newClient.brandVoice} onChange={(e) => setNewClient({...newClient, brandVoice: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" />
+              <input type="text" placeholder="Ej: Juvenil, festivo, dinámico y muy visual" value={newClient.brandVoice} onChange={(e) => setNewClient({...newClient, brandVoice: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
             </div>
 
             <div className="flex gap-2 justify-end pt-3 border-t">
@@ -1882,7 +1899,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* MODAL GESTIONAR / EDITAR CLIENTE */}
       {showEditClientModal && editClientForm && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className={`border w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto ${bgTaskCard}`}>
@@ -1893,7 +1909,7 @@ export default function Dashboard() {
 
             <div>
               <label className="text-[10px] text-slate-500 block mb-1 font-bold">Nombre del Cliente / Marca</label>
-              <input type="text" value={editClientForm.name} onChange={(e) => setEditClientForm({...editClientForm, name: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2.5 text-xs font-bold" />
+              <input type="text" value={editClientForm.name} onChange={(e) => setEditClientForm({...editClientForm, name: e.target.value})} className="w-full border rounded-lg p-2.5 text-xs font-bold" />
             </div>
 
             <div>
@@ -1906,28 +1922,28 @@ export default function Dashboard() {
 
             <div>
               <label className="text-[10px] text-slate-500 block mb-1 font-bold">Descripción del Proyecto</label>
-              <textarea value={editClientForm.description} onChange={(e) => setEditClientForm({...editClientForm, description: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs h-16"></textarea>
+              <textarea value={editClientForm.description} onChange={(e) => setEditClientForm({...editClientForm, description: e.target.value})} className="w-full border rounded-lg p-2 text-xs h-16"></textarea>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-[10px] text-slate-500 block mb-1 font-bold">Mensualidad ($)</label>
-                <input type="number" value={editClientForm.monthlyFee || 0} onChange={(e) => setEditClientForm({...editClientForm, monthlyFee: Number(e.target.value)})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" />
+                <input type="number" value={editClientForm.monthlyFee || 0} onChange={(e) => setEditClientForm({...editClientForm, monthlyFee: Number(e.target.value)})} className="w-full border rounded-lg p-2 text-xs" />
               </div>
               <div>
                 <label className="text-[10px] text-slate-500 block mb-1 font-bold">Día de Cobro</label>
-                <input type="text" value={editClientForm.paymentDueDate || ''} onChange={(e) => setEditClientForm({...editClientForm, paymentDueDate: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" />
+                <input type="text" value={editClientForm.paymentDueDate || ''} onChange={(e) => setEditClientForm({...editClientForm, paymentDueDate: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
               </div>
             </div>
 
             <div>
               <label className="text-[10px] text-slate-500 block mb-1 font-bold">Link a Google Drive / Nube Principal</label>
-              <input type="url" value={editClientForm.driveUrl || ''} onChange={(e) => setEditClientForm({...editClientForm, driveUrl: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" />
+              <input type="url" value={editClientForm.driveUrl || ''} onChange={(e) => setEditClientForm({...editClientForm, driveUrl: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
             </div>
 
             <div>
               <label className="text-[10px] text-slate-500 block mb-1 font-bold">Tono de Voz / Lineamientos de Comunicación</label>
-              <input type="text" value={editClientForm.brandVoice || ''} onChange={(e) => setEditClientForm({...editClientForm, brandVoice: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" />
+              <input type="text" value={editClientForm.brandVoice || ''} onChange={(e) => setEditClientForm({...editClientForm, brandVoice: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
             </div>
 
             <div className="flex items-center justify-between pt-3 border-t">
@@ -1948,7 +1964,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* MODAL REGISTRAR PAGO Y ABONOS */}
       {showPaymentModal && activeClientObj && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className={`border w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 ${bgTaskCard}`}>
@@ -1973,10 +1988,10 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/60 space-y-2">
+            <div className="p-3 bg-slate-50 rounded-xl border space-y-2">
               <span className="text-xs font-bold text-slate-800 block">Registrar Nuevo Abono</span>
-              <input type="number" placeholder="Monto abonado ($)" value={paymentForm.abonoAmount || ''} onChange={(e) => setPaymentForm({...paymentForm, abonoAmount: Number(e.target.value)})} className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs" />
-              <input type="text" placeholder="Nota / Detalle" value={paymentForm.abonoNote} onChange={(e) => setPaymentForm({...paymentForm, abonoNote: e.target.value})} className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs" />
+              <input type="number" placeholder="Monto abonado ($)" value={paymentForm.abonoAmount || ''} onChange={(e) => setPaymentForm({...paymentForm, abonoAmount: Number(e.target.value)})} className="w-full bg-white border rounded-lg p-2 text-xs" />
+              <input type="text" placeholder="Nota / Detalle" value={paymentForm.abonoNote} onChange={(e) => setPaymentForm({...paymentForm, abonoNote: e.target.value})} className="w-full bg-white border rounded-lg p-2 text-xs" />
             </div>
 
             <div className="flex gap-2 justify-end pt-3 border-t">
@@ -1987,7 +2002,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* MODAL PROGRAMAR CONTENIDO */}
       {showPostModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className={`border w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto ${bgTaskCard}`}>
@@ -2000,23 +2014,23 @@ export default function Dashboard() {
               <label className="text-[10px] text-slate-500 block mb-1 font-bold">Canales de Publicación</label>
               <div className="flex flex-wrap gap-2">
                 {availableNetworks.map(net => (
-                  <button key={net} type="button" onClick={() => toggleNetworkInPost(net)} className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${newPost.networks.includes(net) ? 'bg-[#f64e26] text-white border-[#f64e26]' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>{net} {newPost.networks.includes(net) && '✓'}</button>
+                  <button key={net} type="button" onClick={() => toggleNetworkInPost(net)} className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${newPost.networks.includes(net) ? 'bg-[#f64e26] text-white border-[#f64e26]' : 'bg-slate-100 text-slate-600'}`}>{net} {newPost.networks.includes(net) && '✓'}</button>
                 ))}
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div><label className="text-[10px] text-slate-500 block mb-1">Hora</label><input type="time" value={newPost.time} onChange={(e) => setNewPost({...newPost, time: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" /></div>
-              <div><label className="text-[10px] text-slate-500 block mb-1">Formato</label><select value={newPost.format} onChange={(e) => setNewPost({...newPost, format: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs"><option>Reel</option><option>Carrusel</option><option>Imagen Estática</option><option>Short</option></select></div>
+              <div><label className="text-[10px] text-slate-500 block mb-1">Hora</label><input type="time" value={newPost.time} onChange={(e) => setNewPost({...newPost, time: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
+              <div><label className="text-[10px] text-slate-500 block mb-1">Formato</label><select value={newPost.format} onChange={(e) => setNewPost({...newPost, format: e.target.value})} className="w-full border rounded-lg p-2 text-xs"><option>Reel</option><option>Carrusel</option><option>Imagen Estática</option><option>Short</option></select></div>
             </div>
 
-            <div><label className="text-[10px] text-slate-500 block mb-1">Tema / Asunto</label><input type="text" placeholder="Ej: Lanzamiento producto" value={newPost.topic} onChange={(e) => setNewPost({...newPost, topic: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" /></div>
-            <div><label className="text-[10px] text-slate-500 block mb-1">Copy / Texto</label><textarea placeholder="Copy completo..." value={newPost.copy} onChange={(e) => setNewPost({...newPost, copy: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs h-20"></textarea></div>
+            <div><label className="text-[10px] text-slate-500 block mb-1">Tema / Asunto</label><input type="text" placeholder="Ej: Lanzamiento producto" value={newPost.topic} onChange={(e) => setNewPost({...newPost, topic: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
+            <div><label className="text-[10px] text-slate-500 block mb-1">Copy / Texto</label><textarea placeholder="Copy completo..." value={newPost.copy} onChange={(e) => setNewPost({...newPost, copy: e.target.value})} className="w-full border rounded-lg p-2 text-xs h-20"></textarea></div>
 
             <div className="space-y-2 pt-2 border-t">
-              <input type="url" placeholder="Link de Nube (Drive, Canva)" value={newPost.assetUrl} onChange={(e) => setNewPost({...newPost, assetUrl: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" />
+              <input type="url" placeholder="Link de Nube (Drive, Canva)" value={newPost.assetUrl} onChange={(e) => setNewPost({...newPost, assetUrl: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
               
-              <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all w-fit">
+              <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 border text-slate-700 px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all w-fit">
                 <Upload size={14} className="text-[#f64e26]" />
                 <span>{newPost.fileName ? `✓ ${newPost.fileName}` : 'Adjuntar archivo desde Mac / PC'}</span>
                 <input type="file" onChange={(e) => setNewPost({...newPost, fileName: e.target.files?.[0]?.name || ''})} className="hidden" />
@@ -2031,7 +2045,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* MODAL AGENDAR RODAJE */}
       {showShootModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className={`border w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto ${bgTaskCard}`}>
@@ -2041,13 +2054,13 @@ export default function Dashboard() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div><label className="text-[10px] text-slate-500 block mb-1">Hora Citación</label><input type="time" value={newShoot.time} onChange={(e) => setNewShoot({...newShoot, time: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" /></div>
-              <div><label className="text-[10px] text-slate-500 block mb-1">Locación / Dirección</label><input type="text" placeholder="Ej: Terraza del local" value={newShoot.location} onChange={(e) => setNewShoot({...newShoot, location: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" /></div>
+              <div><label className="text-[10px] text-slate-500 block mb-1">Hora Citación</label><input type="time" value={newShoot.time} onChange={(e) => setNewShoot({...newShoot, time: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
+              <div><label className="text-[10px] text-slate-500 block mb-1">Locación / Dirección</label><input type="text" placeholder="Ej: Terraza del local" value={newShoot.location} onChange={(e) => setNewShoot({...newShoot, location: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
             </div>
 
-            <div><label className="text-[10px] text-slate-500 block mb-1">Guion / Escaleta</label><textarea placeholder="Toma 1: Preparación..." value={newShoot.script} onChange={(e) => setNewShoot({...newShoot, script: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs h-20"></textarea></div>
-            <div><label className="text-[10px] text-slate-500 block mb-1">Equipamiento</label><input type="text" placeholder="Aro de luz, cámara 4K" value={newShoot.assets} onChange={(e) => setNewShoot({...newShoot, assets: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" /></div>
-            <div><label className="text-[10px] text-slate-500 block mb-1">Participantes</label><input type="text" placeholder="Cris, Camila, Barman" value={newShoot.participants} onChange={(e) => setNewShoot({...newShoot, participants: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" /></div>
+            <div><label className="text-[10px] text-slate-500 block mb-1">Guion / Escaleta</label><textarea placeholder="Toma 1: Preparación..." value={newShoot.script} onChange={(e) => setNewShoot({...newShoot, script: e.target.value})} className="w-full border rounded-lg p-2 text-xs h-20"></textarea></div>
+            <div><label className="text-[10px] text-slate-500 block mb-1">Equipamiento</label><input type="text" placeholder="Aro de luz, cámara 4K" value={newShoot.assets} onChange={(e) => setNewShoot({...newShoot, assets: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
+            <div><label className="text-[10px] text-slate-500 block mb-1">Participantes</label><input type="text" placeholder="Cris, Camila, Barman" value={newShoot.participants} onChange={(e) => setNewShoot({...newShoot, participants: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
 
             <div className="flex gap-2 justify-end pt-2 border-t">
               <button onClick={() => setShowShootModal(false)} className="px-4 py-2 text-xs text-slate-500">Cancelar</button>
@@ -2057,7 +2070,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* MODAL FICHA TAREA */}
       {showTaskModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className={`border w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto ${bgTaskCard}`}>
@@ -2071,36 +2083,36 @@ export default function Dashboard() {
                 <Zap size={13} className="text-[#f64e26]" /> Cargar Plantilla Rápida:
               </span>
               <div className="flex gap-2">
-                <button type="button" onClick={() => applyTaskTemplate('reel')} className="bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-lg text-[10px] font-bold">🎬 Producción Reel</button>
-                <button type="button" onClick={() => applyTaskTemplate('parrilla')} className="bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-lg text-[10px] font-bold">📅 Parrilla Redes</button>
+                <button type="button" onClick={() => applyTaskTemplate('reel')} className="bg-white hover:bg-slate-100 border text-slate-700 px-2.5 py-1 rounded-lg text-[10px] font-bold">🎬 Producción Reel</button>
+                <button type="button" onClick={() => applyTaskTemplate('parrilla')} className="bg-white hover:bg-slate-100 border text-slate-700 px-2.5 py-1 rounded-lg text-[10px] font-bold">📅 Parrilla Redes</button>
               </div>
             </div>
 
-            <input type="text" placeholder="Título de la tarea..." value={taskForm.title} onChange={(e) => setTaskForm({...taskForm, title: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2.5 text-xs font-bold" />
+            <input type="text" placeholder="Título de la tarea..." value={taskForm.title} onChange={(e) => setTaskForm({...taskForm, title: e.target.value})} className="w-full border rounded-lg p-2.5 text-xs font-bold" />
 
             <div className="grid grid-cols-2 gap-3">
-              <div><label className="text-[10px] text-slate-500 block mb-1">Fecha Inicio</label><input type="date" value={taskForm.startDate} onChange={(e) => setTaskForm({...taskForm, startDate: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" /></div>
-              <div><label className="text-[10px] text-slate-500 block mb-1">Fecha Límite</label><input type="date" value={taskForm.deadline} onChange={(e) => setTaskForm({...taskForm, deadline: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" /></div>
+              <div><label className="text-[10px] text-slate-500 block mb-1">Fecha Inicio</label><input type="date" value={taskForm.startDate} onChange={(e) => setTaskForm({...taskForm, startDate: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
+              <div><label className="text-[10px] text-slate-500 block mb-1">Fecha Límite</label><input type="date" value={taskForm.deadline} onChange={(e) => setTaskForm({...taskForm, deadline: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
-              <div><label className="text-[10px] text-slate-500 block mb-1">Etapa</label><select value={taskForm.status} onChange={(e) => setTaskForm({...taskForm, status: e.target.value as any})} className="w-full border border-slate-200 rounded-lg p-2 text-xs"><option value="Por Hacer">Por Hacer</option><option value="En Proceso">En Proceso</option><option value="Completado">Completado</option></select></div>
-              <div><label className="text-[10px] text-slate-500 block mb-1">Prioridad</label><select value={taskForm.priority} onChange={(e) => setTaskForm({...taskForm, priority: e.target.value as any})} className="w-full border border-slate-200 rounded-lg p-2 text-xs"><option value="Alta">Alta</option><option value="Media">Media</option><option value="Baja">Baja</option></select></div>
-              <div><label className="text-[10px] text-slate-500 block mb-1">Responsable</label><input type="text" value={taskForm.assignee} onChange={(e) => setTaskForm({...taskForm, assignee: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs" /></div>
+              <div><label className="text-[10px] text-slate-500 block mb-1">Etapa</label><select value={taskForm.status} onChange={(e) => setTaskForm({...taskForm, status: e.target.value as any})} className="w-full border rounded-lg p-2 text-xs"><option value="Por Hacer">Por Hacer</option><option value="En Proceso">En Proceso</option><option value="Completado">Completado</option></select></div>
+              <div><label className="text-[10px] text-slate-500 block mb-1">Prioridad</label><select value={taskForm.priority} onChange={(e) => setTaskForm({...taskForm, priority: e.target.value as any})} className="w-full border rounded-lg p-2 text-xs"><option value="Alta">Alta</option><option value="Media">Media</option><option value="Baja">Baja</option></select></div>
+              <div><label className="text-[10px] text-slate-500 block mb-1">Responsable</label><input type="text" value={taskForm.assignee} onChange={(e) => setTaskForm({...taskForm, assignee: e.target.value})} className="w-full border rounded-lg p-2 text-xs" /></div>
             </div>
 
-            <textarea placeholder="Descripción detallada..." value={taskForm.description} onChange={(e) => setTaskForm({...taskForm, description: e.target.value})} className="w-full border border-slate-200 rounded-lg p-2 text-xs h-20"></textarea>
+            <textarea placeholder="Descripción detallada..." value={taskForm.description} onChange={(e) => setTaskForm({...taskForm, description: e.target.value})} className="w-full border rounded-lg p-2 text-xs h-20"></textarea>
 
             <div className="space-y-2">
               <label className="text-[10px] text-slate-500 block font-bold">Subtareas / Checklist</label>
               <div className="flex gap-2">
-                <input type="text" placeholder="Nueva subtarea..." value={newSubtaskTitle} onChange={(e) => setNewSubtaskTitle(e.target.value)} className="flex-1 border border-slate-200 rounded-lg p-2 text-xs" />
+                <input type="text" placeholder="Nueva subtarea..." value={newSubtaskTitle} onChange={(e) => setNewSubtaskTitle(e.target.value)} className="flex-1 border rounded-lg p-2 text-xs" />
                 <button type="button" onClick={addSubtaskToForm} className="bg-[#f64e26] text-white px-3 rounded-lg text-xs font-bold">+</button>
               </div>
 
               <div className="space-y-1.5 max-h-28 overflow-y-auto pt-1">
                 {taskForm.subtasks.map(sub => (
-                  <div key={sub.id} className="flex items-center justify-between text-xs bg-slate-50/50 p-2 rounded-lg border border-slate-200/60">
+                  <div key={sub.id} className="flex items-center justify-between text-xs bg-slate-50 p-2 rounded-lg border">
                     <div className="flex items-center gap-2">
                       <input type="checkbox" checked={sub.completed} onChange={() => {
                         setTaskForm(prev => ({
@@ -2119,6 +2131,61 @@ export default function Dashboard() {
             <div className="flex gap-2 justify-end pt-3 border-t">
               <button onClick={() => setShowTaskModal(false)} className="px-4 py-2 text-xs text-slate-500">Cancelar</button>
               <button onClick={handleSaveTaskForm} className="bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm">{selectedTaskForEdit ? 'Guardar Cambios' : 'Crear Tarea'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showClientModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className={`border w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto ${bgTaskCard}`}>
+            <div className="flex items-center justify-between border-b pb-3">
+              <h3 className={`text-base font-bold ${textTitle}`}>Nuevo Cliente / Proyecto</h3>
+              <button onClick={() => setShowClientModal(false)}><X size={18} className="text-zinc-400" /></button>
+            </div>
+
+            <div>
+              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Nombre del Cliente / Marca (*)</label>
+              <input type="text" placeholder="Ej: Mitz Bar Lounge, Aloha Chic" value={newClient.name} onChange={(e) => setNewClient({...newClient, name: e.target.value})} className="w-full border rounded-lg p-2.5 text-xs font-bold" />
+            </div>
+
+            <div>
+              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Color Identificatorio de Marca</label>
+              <div className="flex items-center gap-3">
+                <input type="color" value={newClient.color} onChange={(e) => setNewClient({...newClient, color: e.target.value})} className="w-10 h-10 rounded-xl bg-transparent border-0 cursor-pointer" />
+                <span className="text-xs font-mono font-bold text-slate-700">{newClient.color}</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Descripción / Rubro del Cliente</label>
+              <textarea placeholder="Síntesis del servicio o tipo de contrato..." value={newClient.description} onChange={(e) => setNewClient({...newClient, description: e.target.value})} className="w-full border rounded-lg p-2 text-xs h-16"></textarea>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[10px] text-slate-500 block mb-1 font-bold">Valor Mensualidad ($)</label>
+                <input type="number" placeholder="Ej: 450000" value={newClient.monthlyFee || ''} onChange={(e) => setNewClient({...newClient, monthlyFee: Number(e.target.value)})} className="w-full border rounded-lg p-2 text-xs" />
+              </div>
+              <div>
+                <label className="text-[10px] text-slate-500 block mb-1 font-bold">Día de Cobro Pactado</label>
+                <input type="text" placeholder="Ej: 05 de cada mes" value={newClient.paymentDueDate} onChange={(e) => setNewClient({...newClient, paymentDueDate: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Link a Carpeta Google Drive / Nube</label>
+              <input type="url" placeholder="https://drive.google.com/..." value={newClient.driveUrl} onChange={(e) => setNewClient({...newClient, driveUrl: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
+            </div>
+
+            <div>
+              <label className="text-[10px] text-slate-500 block mb-1 font-bold">Tono de Voz / Pautas de Comunicación</label>
+              <input type="text" placeholder="Ej: Juvenil, festivo, dinámico y muy visual" value={newClient.brandVoice} onChange={(e) => setNewClient({...newClient, brandVoice: e.target.value})} className="w-full border rounded-lg p-2 text-xs" />
+            </div>
+
+            <div className="flex gap-2 justify-end pt-3 border-t">
+              <button onClick={() => setShowClientModal(false)} className="px-4 py-2 text-xs text-slate-500">Cancelar</button>
+              <button onClick={handleCreateClientFull} className="bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm">Crear Cliente</button>
             </div>
           </div>
         </div>
