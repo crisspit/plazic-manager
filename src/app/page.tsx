@@ -218,51 +218,9 @@ export default function Dashboard() {
 
   const [newClient, setNewClient] = useState({ name: '', color: '#f64e26', description: '', monthlyFee: 0, paymentDueDate: '', driveUrl: '', brandVoice: '' });
 
-  const [posts, setPosts] = useState<Post[]>([
-    { 
-      id: 1, 
-      clientId: 'mitz', 
-      date: '2026-08-15', 
-      time: '18:00', 
-      networks: ['Instagram', 'TikTok', 'Facebook'], 
-      format: 'Reel', 
-      status: 'Publicado', 
-      topic: 'Lanzamiento Trago de Autor', 
-      copy: '¡Este fin de semana se prende la barra con nuestro nuevo cóctel!', 
-      assetUrl: 'https://instagram.com', 
-      fileName: 'Reel_Coctel_v1.mp4' 
-    }
-  ]);
-
-  const [shoots, setShoots] = useState<Shoot[]>([
-    { 
-      id: 1, 
-      clientId: 'mitz', 
-      date: '2026-08-14', 
-      time: '16:00', 
-      location: 'Local Principal (Terraza)', 
-      script: 'Toma 1: Preparación del trago.', 
-      assets: 'Aro de luz, Cámara 4K', 
-      participants: 'Cristopher, Camila',
-      status: 'Agendado'
-    }
-  ]);
-
-  const [tasks, setTasks] = useState<Task[]>([
-    { 
-      id: 1, 
-      clientId: 'mitz', 
-      title: 'Crear lista de tareas para Embudo', 
-      description: 'Extraer datos de alcance.',
-      startDate: '2026-08-01',
-      deadline: '2026-08-13', 
-      priority: 'Alta', 
-      status: 'Por Hacer',
-      assignee: 'Cris',
-      tags: ['Embudo'],
-      subtasks: [{ id: 101, title: 'Exportar estadísticas', completed: true }]
-    }
-  ]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [shoots, setShoots] = useState<Shoot[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
 
   const [newPost, setNewPost] = useState({
     date: '2026-08-10',
@@ -344,6 +302,25 @@ export default function Dashboard() {
 
   const saveToSupabase = async (table: string, id: number | string, data: any) => {
     await supabase.from(table).upsert({ id: String(id), data: data });
+  };
+
+  const handleDeleteTask = async (id: number) => {
+    const updated = tasks.filter(t => t.id !== id);
+    setTasks(updated);
+    await supabase.from('tasks').delete().eq('id', String(id));
+    setShowTaskModal(false);
+  };
+
+  const handleDeletePost = async (id: number) => {
+    const updated = posts.filter(p => p.id !== id);
+    setPosts(updated);
+    await supabase.from('posts').delete().eq('id', String(id));
+  };
+
+  const handleDeleteShoot = async (id: number) => {
+    const updated = shoots.filter(s => s.id !== id);
+    setShoots(updated);
+    await supabase.from('shoots').delete().eq('id', String(id));
   };
 
   const handleLogin = (e?: React.FormEvent) => {
@@ -1333,7 +1310,7 @@ export default function Dashboard() {
             
             <div className="flex-1 flex flex-col min-w-0">
 
-              {(activeTab === 'contenido' || activeTab === 'grabacion' || (activeTab === 'tareas' && taskViewMode === 'calendar')) && (
+              {(activeTab === 'contenido' || activeTab === 'grabacion' || activeTab === 'tareas') && (
                 <div className="flex-1 flex flex-col min-h-0">
                   <div className={`flex items-center justify-between mb-3 p-3 rounded-xl border border-slate-200/60 no-print ${bgTaskCard}`}>
                     <div className="flex items-center gap-3">
@@ -1366,6 +1343,7 @@ export default function Dashboard() {
 
                         const dayPosts = filteredPosts.filter(p => p.date === d.fullDate);
                         const dayShoots = filteredShoots.filter(s => s.date === d.fullDate);
+                        const dayTasks = filteredTasks.filter(t => t.deadline === d.fullDate || t.startDate === d.fullDate);
 
                         return (
                           <div key={index} onClick={() => openAddModalForDate(d.fullDate)} className={`border-r border-b ${gridBorderColor} p-2 min-h-[100px] hover:bg-[#f64e26]/5 transition-all cursor-pointer flex flex-col group relative`}>
@@ -1405,13 +1383,10 @@ export default function Dashboard() {
                                       </span>
                                     </div>
 
-                                    <button 
-                                      onClick={(e) => { e.stopPropagation(); handleDuplicatePost(p); }} 
-                                      title="Duplicar Post" 
-                                      className="p-0.5 hover:text-[#f64e26] opacity-0 group-hover/card:opacity-100 transition-opacity shrink-0"
-                                    >
-                                      <Copy size={11} />
-                                    </button>
+                                    <div className="flex items-center gap-1">
+                                      <button onClick={(e) => { e.stopPropagation(); handleDuplicatePost(p); }} title="Duplicar" className="p-0.5 hover:text-[#f64e26] opacity-0 group-hover/card:opacity-100"><Copy size={11} /></button>
+                                      <button onClick={(e) => { e.stopPropagation(); handleDeletePost(p.id); }} title="Eliminar" className="p-0.5 hover:text-red-500 opacity-0 group-hover/card:opacity-100"><Trash2 size={11} /></button>
+                                    </div>
                                   </div>
                                 );
                               })}
@@ -1421,7 +1396,7 @@ export default function Dashboard() {
                                 return (
                                   <div 
                                     key={s.id} 
-                                    className={`text-[10px] p-1.5 rounded-lg border-l-2 font-semibold flex items-center justify-between gap-1 transition-all ${
+                                    className={`text-[10px] p-1.5 rounded-lg border-l-2 font-semibold flex items-center justify-between gap-1 group/card transition-all ${
                                       isDone 
                                         ? 'bg-emerald-50 border-emerald-500 text-emerald-900' 
                                         : 'bg-amber-50 border-amber-500 text-amber-900'
@@ -1445,9 +1420,17 @@ export default function Dashboard() {
                                         📹 {s.time} - {s.location}
                                       </span>
                                     </div>
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteShoot(s.id); }} title="Eliminar" className="p-0.5 hover:text-red-500 opacity-0 group-hover/card:opacity-100"><Trash2 size={11} /></button>
                                   </div>
                                 );
                               })}
+
+                              {activeTab === 'tareas' && dayTasks.map(t => (
+                                <div key={t.id} onClick={(e) => { e.stopPropagation(); openTaskModal(t); }} className="text-[10px] p-1.5 rounded-lg border-l-2 font-semibold bg-blue-50 border-blue-500 text-blue-900 truncate flex items-center justify-between group/card">
+                                  <span className="truncate">📌 {t.title}</span>
+                                  <button onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }} title="Eliminar" className="hover:text-red-500 opacity-0 group-hover/card:opacity-100"><Trash2 size={11} /></button>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         );
@@ -2119,9 +2102,18 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="flex gap-2 justify-end pt-3 border-t">
-              <button onClick={() => setShowTaskModal(false)} className="px-4 py-2 text-xs text-slate-500">Cancelar</button>
-              <button onClick={handleSaveTaskForm} className="bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm">{selectedTaskForEdit ? 'Guardar Cambios' : 'Crear Tarea'}</button>
+            <div className="flex items-center justify-between pt-3 border-t">
+              {selectedTaskForEdit ? (
+                <button type="button" onClick={() => handleDeleteTask(selectedTaskForEdit.id)} className="px-3 py-2 bg-red-100 text-red-600 rounded-lg text-xs font-bold hover:bg-red-200">
+                  Eliminar Tarea
+                </button>
+              ) : <div></div>}
+              <div className="flex gap-2">
+                <button onClick={() => setShowTaskModal(false)} className="px-4 py-2 text-xs text-slate-500">Cancelar</button>
+                <button onClick={handleSaveTaskForm} className="bg-[#f64e26] hover:bg-[#e03e17] text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm">
+                  {selectedTaskForEdit ? 'Guardar Cambios' : 'Crear Tarea'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
