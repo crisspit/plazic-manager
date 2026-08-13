@@ -287,18 +287,29 @@ export default function Dashboard() {
     clientId: ''
   });
 
-  const [taskForm, setTaskForm] = useState({
-    id?: number,
+  const [taskForm, setTaskForm] = useState<{
+    id?: number;
+    title: string;
+    description: string;
+    startDate: string;
+    deadline: string;
+    priority: Task['priority'];
+    status: Task['status'];
+    assignee: string;
+    tagsInput: string;
+    clientId: string;
+    subtasks: Subtask[];
+  }>({
     title: '',
     description: '',
     startDate: '2026-08-10',
     deadline: '2026-08-15',
-    priority: 'Media' as Task['priority'],
-    status: 'Por Hacer' as Task['status'],
+    priority: 'Media',
+    status: 'Por Hacer',
     assignee: 'Cris',
     tagsInput: '',
     clientId: '',
-    subtasks: [] as Subtask[]
+    subtasks: []
   });
 
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
